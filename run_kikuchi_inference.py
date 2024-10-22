@@ -43,6 +43,15 @@ def setup_test_folders(input_folder):
         log("No images found in the input folder to copy.")
         sys.exit(1)
 
+    return testA_dir, testB_dir
+
+
+# Function to remove testA and testB folders
+def clean_test_folders(testA_dir, testB_dir):
+    log(f"Removing testA and testB directories: {testA_dir}, {testB_dir}")
+    shutil.rmtree(testA_dir)
+    shutil.rmtree(testB_dir)
+
 
 # Function to run the CycleGAN test script
 def run_cyclegan_test(input_folder, results_dir, model_name):
@@ -85,18 +94,19 @@ def process_images(results_dir, model_name, target_size):
         sys.exit(1)
 
     # Process images in the output folder
+    fake_B_images = 0
     for image_file in os.listdir(output_path):
         if image_file.endswith('_fake_B.png'):
+            fake_B_images += 1
             # Extract the original image name
             original_image = image_file.replace('_fake_B.png', '.png')
 
             # Move and rename necessary images
-            for suffix in ['_fake_B.png']:
-                src = os.path.join(output_path, image_file.replace('_fake_B.png', suffix))
-                dst = os.path.join(output_path, original_image)
-                if os.path.exists(src):
-                    log(f"Renaming {src} to {dst}")
-                    shutil.move(src, dst)
+            src = os.path.join(output_path, image_file)
+            dst = os.path.join(output_path, original_image)
+            if os.path.exists(src):
+                log(f"Renaming {src} to {dst}")
+                shutil.move(src, dst)
 
             # Convert to grayscale and resize
             img_path = os.path.join(output_path, original_image)
@@ -106,18 +116,21 @@ def process_images(results_dir, model_name, target_size):
             img.save(img_path)
 
     # Clean up unnecessary files
-    for suffix in ['_real_A.png', '_rec_A.png', '_fake_A.png', '_rec_A.png', '_rec_B.png', '_real_B.png', ]:
+    for suffix in ['_real_A.png', '_rec_A.png', '_fake_A.png', '_rec_A.png', '_rec_B.png', '_real_B.png']:
         for file in os.listdir(output_path):
             if file.endswith(suffix):
                 file_path = os.path.join(output_path, file)
                 log(f"Removing {file_path}")
                 os.remove(file_path)
 
-    log("Image processing completed.")
+    log(f"Image processing completed. Processed {fake_B_images} fake_B images.")
+    return fake_B_images
 
 
 # Main function to handle the entire workflow
 def main():
+    ### example command:  python .\run_kikuchi_inference.py --model_name .\cyclegan_kikuchi_model_weights\sim_kikuchi_no_preprocess_lr2e-4_decay_400
+    #                             --input_folder C:\Users\kvman\Documents\ml_data\kikuchi_super_resolution\test_2x2  --results_dir results\debarna_test
     parser = argparse.ArgumentParser(description="CycleGAN Inference and Image Processing Script")
     parser.add_argument('--input_folder', required=True, help="Path to the input data folder")
     parser.add_argument('--results_dir', required=True, help="Path to the results directory")
@@ -128,7 +141,10 @@ def main():
     args = parser.parse_args()
 
     # Step 1: Set up testA and testB directories, and copy images
-    setup_test_folders(args.input_folder)
+    testA_dir, testB_dir = setup_test_folders(args.input_folder)
+
+    # Measure total start time
+    start_time = time.time()
 
     # Step 2: Run CycleGAN inference (test.py)
     log(f"Starting CycleGAN inference with model: {args.model_name}")
@@ -136,7 +152,20 @@ def main():
 
     # Step 3: Process images (resize, grayscale, and clean up)
     log(f"Processing images in the results directory: {args.results_dir}")
-    process_images(args.results_dir, args.model_name, args.target_size)
+    fake_B_images = process_images(args.results_dir, args.model_name, args.target_size)
+
+    # Step 4: Clean up testA and testB directories
+    clean_test_folders(testA_dir, testB_dir)
+
+    # Measure total end time
+    end_time = time.time()
+    total_time = end_time - start_time
+    if fake_B_images > 0:
+        time_per_inference = total_time / fake_B_images
+        log(f"Total processing time: {total_time:.2f} seconds.")
+        log(f"Time per inference: {time_per_inference:.2f} seconds.")
+    else:
+        log("No fake_B images were processed.")
 
 
 if __name__ == "__main__":
