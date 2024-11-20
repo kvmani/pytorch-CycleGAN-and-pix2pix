@@ -129,7 +129,7 @@ def process_images(results_dir, model_name, target_size):
 
 # Main function to handle the entire workflow
 def main():
-    ### example command:  python .\run_kikuchi_inference.py --model_name .\cyclegan_kikuchi_model_weights\sim_kikuchi_no_preprocess_lr2e-4_decay_400
+    ### example command:  python .\run_kikuchi_inference.py --model_name cyclegan_kikuchi_model_weights\sim_kikuchi_no_preprocess_lr2e-4_decay_400
     #                             --input_folder C:\Users\kvman\Documents\ml_data\kikuchi_super_resolution\test_2x2  --results_dir results\debarna_test
     parser = argparse.ArgumentParser(description="CycleGAN Inference and Image Processing Script")
     parser.add_argument('--input_folder', required=True, help="Path to the input data folder")
