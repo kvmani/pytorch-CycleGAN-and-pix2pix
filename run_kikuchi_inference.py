@@ -14,7 +14,7 @@ def log(message):
 
 
 # Function to create testA and testB folders and copy images
-def setup_test_folders(input_folder):
+def setup_test_folders(input_folder, debug):
     log("Setting up testA and testB directories for CycleGAN inference...")
 
     # Create testA and testB directories
@@ -24,8 +24,18 @@ def setup_test_folders(input_folder):
     os.makedirs(testA_dir, exist_ok=True)
     os.makedirs(testB_dir, exist_ok=True)
 
-    # Copy all images to testA folder
+    # Get all image files
     images = [f for f in os.listdir(input_folder) if f.endswith('.jpg') or f.endswith('.png')]
+
+    if debug:
+        log("Debug mode is enabled. Processing only the first 20 images.")
+        images = images[:20]
+
+    if not images:
+        log("No images found in the input folder to copy.")
+        sys.exit(1)
+
+    # Copy all images to testA folder
     for image in images:
         src = os.path.join(input_folder, image)
         dst = os.path.join(testA_dir, image)
@@ -33,15 +43,11 @@ def setup_test_folders(input_folder):
         shutil.copy(src, dst)
 
     # Copy a random image to testB folder to simulate domain B presence
-    if images:
-        random_image = random.choice(images)
-        src = os.path.join(testA_dir, random_image)
-        dst = os.path.join(testB_dir, random_image)
-        log(f"Copying a random image {src} to testB folder: {dst}")
-        shutil.copy(src, dst)
-    else:
-        log("No images found in the input folder to copy.")
-        sys.exit(1)
+    random_image = random.choice(images)
+    src = os.path.join(testA_dir, random_image)
+    dst = os.path.join(testB_dir, random_image)
+    log(f"Copying a random image {src} to testB folder: {dst}")
+    shutil.copy(src, dst)
 
     return testA_dir, testB_dir
 
@@ -53,14 +59,14 @@ def clean_test_folders(testA_dir, testB_dir):
     shutil.rmtree(testB_dir)
 
 
-# Function to run the CycleGAN test script
+# Function to activate conda environment and run CycleGAN test script
 def run_cyclegan_test(input_folder, results_dir, model_name):
     log(f"Running CycleGAN test script for model: {model_name}")
 
     try:
         # Construct the command to run test.py
         command = [
-            'python', 'test.py',  # Adjust this if test.py is in a different location
+            'python', 'test.py',
             '--results_dir', results_dir,
             '--dataroot', input_folder,
             '--name', model_name,
@@ -69,12 +75,18 @@ def run_cyclegan_test(input_folder, results_dir, model_name):
             '--output_nc', '1',
             '--load_size', '512',
             '--crop_size', '512',
-            '--num_test', '10'
-            # '--gpu_ids', '-1'
+            '--num_test', '10',
+            '--gpu_ids', '-1',
         ]
 
-        # Run the command
-        subprocess.run(command, check=True)
+        # Check and activate conda environment on Linux
+        if sys.platform.startswith('linux'):
+            log("Activating conda environment for Linux...")
+            conda_activate = f"source $HOME/anaconda3/bin/activate && conda activate ml_env && {' '.join(command)}"
+            subprocess.run(conda_activate, shell=True, check=True)
+        else:
+            subprocess.run(command, check=True)
+
         log("CycleGAN testing completed successfully.")
 
     except subprocess.CalledProcessError as e:
@@ -129,19 +141,17 @@ def process_images(results_dir, model_name, target_size):
 
 # Main function to handle the entire workflow
 def main():
-    ### example command:  python .\run_kikuchi_inference.py --model_name cyclegan_kikuchi_model_weights\sim_kikuchi_no_preprocess_lr2e-4_decay_400
-    #                             --input_folder C:\Users\kvman\Documents\ml_data\kikuchi_super_resolution\test_2x2  --results_dir results\debarna_test
     parser = argparse.ArgumentParser(description="CycleGAN Inference and Image Processing Script")
     parser.add_argument('--input_folder', required=True, help="Path to the input data folder")
     parser.add_argument('--results_dir', required=True, help="Path to the results directory")
     parser.add_argument('--model_name', required=True, help="Model name to locate results")
-    parser.add_argument('--target_size', type=int, default=460,
-                        help="Target size for image resizing (default: 460x460)")
+    parser.add_argument('--target_size', type=int, default=230, help="Target size for image resizing (default: 230X230)")
+    parser.add_argument('--debug', action='store_true', help="Debug mode to process only the first 20 images")
 
     args = parser.parse_args()
 
     # Step 1: Set up testA and testB directories, and copy images
-    testA_dir, testB_dir = setup_test_folders(args.input_folder)
+    testA_dir, testB_dir = setup_test_folders(args.input_folder, args.debug)
 
     # Measure total start time
     start_time = time.time()
