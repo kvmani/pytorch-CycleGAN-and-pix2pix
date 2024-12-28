@@ -6,12 +6,20 @@ from PIL import Image
 import argparse
 import time
 import random
+import platform
+import getpass
+import socket
 
 
 # Logging function
-def log(message):
-    print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] {message}")
 
+def log(message, log_file=None):
+    timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
+    formatted_message = f"[{timestamp}] {message}"
+    print(formatted_message)  # Print to console
+    if log_file:
+        with open(log_file, 'a') as f:
+            f.write(formatted_message + '\n')
 
 # Function to create testA and testB folders and copy images
 def setup_test_folders(input_folder, debug):
@@ -73,10 +81,10 @@ def run_cyclegan_test(input_folder, results_dir, model_name):
             '--model', 'cycle_gan',
             '--input_nc', '1',
             '--output_nc', '1',
-            '--load_size', '512',
-            '--crop_size', '512',
-            '--num_test', '10',
-            '--gpu_ids', '-1',
+            '--load_size', '256',
+            '--crop_size', '256',
+            '--num_test', '100000',
+            #'--gpu_ids', '-1',
         ]
 
         # Check and activate conda environment on Linux
@@ -138,7 +146,30 @@ def process_images(results_dir, model_name, target_size):
     log(f"Image processing completed. Processed {fake_B_images} fake_B images.")
     return fake_B_images
 
+def record_run_details(log_file, args, start_time):
+    with open(log_file, 'a') as f:
+        f.write("========== Run Details ==========\n")
+        f.write(f"Run Date: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
+        f.write(f"Full Command Used for Run: {' '.join(sys.argv)}\n")
+        f.write(f"Input Data Folder: {args.input_folder}\n")
+        f.write(f"Results Directory: {args.results_dir}\n")
+        f.write(f"Model Name: {args.model_name}\n")
+        f.write(f"Target Size for Resizing: {args.target_size}\n")
+        f.write(f"Debug Mode: {args.debug}\n")
+        f.write(f"Start Time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(start_time))}\n")
 
+        # System Information
+        f.write("\n========== System Information ==========\n")
+        f.write(f"User: {getpass.getuser()}\n")
+        f.write(f"Hostname: {socket.gethostname()}\n")
+        f.write(f"Operating System: {platform.system()} {platform.release()}\n")
+        f.write(f"OS Version: {platform.version()}\n")
+        f.write(f"Processor: {platform.processor()}\n")
+        f.write(f"Python Version: {platform.python_version()}\n")
+        f.write(f"Current Working Directory: {os.getcwd()}\n")
+        f.write(f"Available CPU Cores: {os.cpu_count()}\n")
+
+        f.write("=================================\n\n")
 # Main function to handle the entire workflow
 def main():
     parser = argparse.ArgumentParser(description="CycleGAN Inference and Image Processing Script")
@@ -150,18 +181,27 @@ def main():
 
     args = parser.parse_args()
 
-    # Step 1: Set up testA and testB directories, and copy images
-    testA_dir, testB_dir = setup_test_folders(args.input_folder, args.debug)
+    # Ensure the results directory exists
+    os.makedirs(args.results_dir, exist_ok=True)
+
+    # Log file path in results directory
+    log_file = os.path.join(args.results_dir, 'run_details.log')
 
     # Measure total start time
     start_time = time.time()
 
+    # Record initial run details
+    record_run_details(log_file, args, start_time)
+
+    # Step 1: Set up testA and testB directories, and copy images
+    testA_dir, testB_dir = setup_test_folders(args.input_folder, args.debug)
+
     # Step 2: Run CycleGAN inference (test.py)
-    log(f"Starting CycleGAN inference with model: {args.model_name}")
+    log(f"Starting CycleGAN inference with model: {args.model_name}", log_file)
     run_cyclegan_test(args.input_folder, args.results_dir, args.model_name)
 
     # Step 3: Process images (resize, grayscale, and clean up)
-    log(f"Processing images in the results directory: {args.results_dir}")
+    log(f"Processing images in the results directory: {args.results_dir}", log_file)
     fake_B_images = process_images(args.results_dir, args.model_name, args.target_size)
 
     # Step 4: Clean up testA and testB directories
@@ -170,13 +210,24 @@ def main():
     # Measure total end time
     end_time = time.time()
     total_time = end_time - start_time
-    if fake_B_images > 0:
-        time_per_inference = total_time / fake_B_images
-        log(f"Total processing time: {total_time:.2f} seconds.")
-        log(f"Time per inference: {time_per_inference:.2f} seconds.")
-    else:
-        log("No fake_B images were processed.")
 
+    # Write additional run details to log file
+    with open(log_file, 'a') as f:
+        f.write("========== Summary ==========\n")
+        if fake_B_images > 0:
+            time_per_inference = total_time / fake_B_images
+            f.write(f"Total Processing Time: {total_time:.2f} seconds\n")
+            f.write(f"Time Per Inference: {time_per_inference:.2f} seconds\n")
+        else:
+            f.write("No fake_B images were processed.\n")
+        f.write(f"End Time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(end_time))}\n")
+        f.write("=================================\n")
+
+    log(f"Run details saved to: {log_file}", log_file)
 
 if __name__ == "__main__":
+    ### example run command: python .\run_kikuchi_inference.py --model_name cyclegan_kikuchi_model_weights/sim_kikuchi_no_preprocess_lr2e-4_decay_400
+    #                                --input_folder C:\Users\kvman\PycharmProjects\kikuchiBandAnalyzer\exported_images\magnetite_data --results_dir debarna_magnetite_ai_processed
     main()
+
+
