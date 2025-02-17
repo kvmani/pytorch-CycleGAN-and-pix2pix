@@ -13,10 +13,17 @@ def image_write(path_A, path_B, path_AB):
 
 
 parser = argparse.ArgumentParser('create image pairs')
+<<<<<<< HEAD
 parser.add_argument('--fold_A', dest='fold_A', help='input directory for image A', type=str, default="/home/lus04/kvmani/ml_works/kaushal_2025/outputs/data10.0/tiff_for_ML/A/")
 parser.add_argument('--fold_B', dest='fold_B', help='input directory for image B', type=str, default="/home/lus04/kvmani/ml_works/kaushal_2025/outputs/data10.0/tiff_for_ML/B/")
 parser.add_argument('--fold_AB', dest='fold_AB', help='output directory', type=str, default="/home/lus04/kvmani/ml_works/kaushal_2025/outputs/data10.0/tiff_for_ML/AB/")
 parser.add_argument('--num_imgs', dest='num_imgs', help='number of images', type=int, default=5500)
+=======
+parser.add_argument('--fold_A', dest='fold_A', help='input directory for image A', type=str, default='../dataset/50kshoes_edges')
+parser.add_argument('--fold_B', dest='fold_B', help='input directory for image B', type=str, default='../dataset/50kshoes_jpg')
+parser.add_argument('--fold_AB', dest='fold_AB', help='output directory', type=str, default='../dataset/test_AB')
+parser.add_argument('--num_imgs', dest='num_imgs', help='number of images', type=int, default=1000000)
+>>>>>>> 0000e54ba5eea0ce606a41e75bdd0716dfcae8ed
 parser.add_argument('--use_AB', dest='use_AB', help='if true: (0001_A, 0001_B) to (0001_AB)', action='store_true')
 parser.add_argument('--no_multiprocessing', dest='no_multiprocessing', help='If used, chooses single CPU execution instead of parallel execution', action='store_true',default=False)
 args = parser.parse_args()
@@ -64,4 +71,8 @@ for sp in splits:
                 cv2.imwrite(path_AB, im_AB)
 if not args.no_multiprocessing:
     pool.close()
+<<<<<<< HEAD
     pool.join()
+=======
+    pool.join()
+>>>>>>> 0000e54ba5eea0ce606a41e75bdd0716dfcae8ed
