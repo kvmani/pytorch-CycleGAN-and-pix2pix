@@ -1,0 +1,16 @@
+2025-02-03 12:10:21,163 - INFO - Starting image collection from '/home/lus04/kvmani/ml_works/kaushal_2025/outputs/data7.0/tiff/A/'
+2025-02-03 12:10:21,184 - INFO - Total images found: 4273
+2025-02-03 12:10:21,660 - INFO - Using 16 proceses in parallel
+2025-02-03 12:11:08,164 - INFO - Distribution complete.
+2025-02-03 12:11:08,164 - INFO - Train images: 3418
+2025-02-03 12:11:08,164 - INFO - Test images: 427
+2025-02-03 12:11:08,164 - INFO - Validation images: 428
+2025-02-03 12:11:08,164 - INFO - Total time taken: 47.00 seconds
+2025-02-03 12:11:30,000 - INFO - Starting image collection from '/home/lus04/kvmani/ml_works/kaushal_2025/outputs/data7.0/tiff/B/'
+2025-02-03 12:11:30,011 - INFO - Total images found: 2064
+2025-02-03 12:11:30,043 - INFO - Using 16 proceses in parallel
+2025-02-03 12:11:48,926 - INFO - Distribution complete.
+2025-02-03 12:11:48,926 - INFO - Train images: 1651
+2025-02-03 12:11:48,926 - INFO - Test images: 206
+2025-02-03 12:11:48,926 - INFO - Validation images: 207
+2025-02-03 12:11:48,926 - INFO - Total time taken: 18.93 seconds

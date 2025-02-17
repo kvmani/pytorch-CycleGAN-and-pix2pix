@@ -1,0 +1,32 @@
+2025-02-13 01:39:38,174 - EBSD_Logger - INFO - Initialized logger. Writing logs to: EBSD/cleanEBSDData/logs/Al-B4CModelScan.ang_20250213_013938.log
+2025-02-13 01:39:38,175 - EBSD_Logger - INFO - Reading file: Al-B4CModelScan.ang
+2025-02-13 01:39:38,774 - EBSD_Logger - INFO - File read successfully. Reducing Euler angles to the fundamental zone.
+2025-02-13 01:39:38,812 - EBSD_Logger - INFO - Applying threshold-based masking on Euler data.
+2025-02-13 01:39:38,815 - EBSD_Logger - INFO - Threshold-based masking applied.
+2025-02-13 01:39:38,830 - EBSD_Logger - INFO - Generating current Euler map.
+2025-02-13 01:39:38,838 - EBSD_Logger - INFO - Starting EBSD cleanup by split and recombine.
+2025-02-13 01:39:38,839 - EBSD_Logger - INFO - Output directory: EBSD/cleanEBSDData/temp3
+2025-02-13 01:39:38,840 - EBSD_Logger - INFO - Applying threshold-based masking on Euler data.
+2025-02-13 01:39:38,842 - EBSD_Logger - INFO - Threshold-based masking applied.
+2025-02-13 01:39:38,843 - EBSD_Logger - INFO - Generating current Euler map.
+2025-02-13 01:39:38,856 - EBSD_Logger - INFO - Masked EBSD PNG saved to: EBSD/cleanEBSDData/temp3\masked_ebsd.png
+2025-02-13 01:39:38,857 - EBSD_Logger - INFO - Auxiliary ML folder created: EBSD/cleanEBSDData/temp3\subdir_for_ml
+2025-02-13 01:39:38,859 - EBSD_Logger - INFO - Splitting image: EBSD/cleanEBSDData/temp3\masked_ebsd.png into subcrops of size: 256
+2025-02-13 01:39:38,870 - EBSD_Logger - INFO - Subcrop saved: subcrop_0_0.png at EBSD/cleanEBSDData/temp3\subdir_for_ml\testA\subcrop_0_0.png
+2025-02-13 01:39:38,871 - EBSD_Logger - INFO - Image splitting complete: 1 rows x 1 columns.
+2025-02-13 01:39:38,871 - EBSD_Logger - INFO - Image split into subcrops: 1 rows x 1 columns.
+2025-02-13 01:39:38,878 - EBSD_Logger - INFO - Random image generated for testB: EBSD/cleanEBSDData/temp3\subdir_for_ml\testB
+2025-02-13 01:39:38,879 - EBSD_Logger - INFO - Starting CycleGAN inference.
+2025-02-13 01:39:38,880 - EBSD_Logger - INFO - CycleGAN arguments: ['--results_dir', 'EBSD/cleanEBSDData/temp3\\subdir_for_ml\\temp', '--dataroot', 'EBSD/cleanEBSDData/temp3\\subdir_for_ml', '--name', 'ebsd_data_2.0_lr1e-4_pool_100_batch_32_vanilla', '--model', 'cycle_gan', '--input_nc', '3', '--output_nc', '3', '--gpu_ids', '-1', '--num_test', '1', '--preprocess', 'none']
+2025-02-13 01:39:47,678 - EBSD_Logger - INFO - CycleGAN inference completed.
+2025-02-13 01:39:47,679 - EBSD_Logger - INFO - CycleGAN output generated in: EBSD/cleanEBSDData/temp3\subdir_for_ml\Ml_output
+2025-02-13 01:39:47,679 - EBSD_Logger - INFO - Combining subcrops from EBSD/cleanEBSDData/temp3\subdir_for_ml\Ml_output into an image of shape (232, 254, 3).
+2025-02-13 01:39:47,695 - EBSD_Logger - INFO - Subcrops recombined successfully.
+2025-02-13 01:39:47,726 - EBSD_Logger - INFO - Predicted EBSD image saved to: EBSD/cleanEBSDData/temp3\predicted_ebsd.png
+2025-02-13 01:39:47,727 - EBSD_Logger - INFO - Denormalizing Euler angles from predicted image.
+2025-02-13 01:39:47,730 - EBSD_Logger - INFO - Denormalization complete.
+2025-02-13 01:39:47,731 - EBSD_Logger - INFO - Euler angles denormalized from reconstructed image.
+2025-02-13 01:39:47,731 - EBSD_Logger - INFO - Replacing Euler angles in EBSD data based on thresholds.
+2025-02-13 01:39:47,738 - EBSD_Logger - INFO - Euler angles replaced successfully.
+2025-02-13 01:39:47,738 - EBSD_Logger - INFO - Euler angles replaced successfully in EBSD data.
+2025-02-13 01:39:47,743 - EBSD_Logger - INFO - Auxiliary ML folder EBSD/cleanEBSDData/temp3\subdir_for_ml deleted.

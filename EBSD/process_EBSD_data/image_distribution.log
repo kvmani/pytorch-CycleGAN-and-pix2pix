@@ -1,0 +1,64 @@
+2025-01-27 18:00:09,041 - INFO - Starting image collection from '/home/lus04/kvmani/ml_works/kaushal_2025/outputs/data5.0/tiff/A/'
+2025-01-27 18:00:09,051 - INFO - Total images found: 4273
+2025-01-27 18:00:09,201 - INFO - Using 16 proceses in parallel
+2025-01-27 18:00:23,835 - INFO - Distribution complete.
+2025-01-27 18:00:23,835 - INFO - Train images: 3418
+2025-01-27 18:00:23,835 - INFO - Test images: 427
+2025-01-27 18:00:23,836 - INFO - Validation images: 428
+2025-01-27 18:00:23,836 - INFO - Total time taken: 14.80 seconds
+2025-01-27 18:00:43,009 - INFO - Starting image collection from '/home/lus04/kvmani/ml_works/kaushal_2025/outputs/data5.0/tiff/B/'
+2025-01-27 18:00:43,014 - INFO - Total images found: 2064
+2025-01-27 18:00:43,041 - INFO - Using 16 proceses in parallel
+2025-01-27 18:00:51,382 - INFO - Distribution complete.
+2025-01-27 18:00:51,383 - INFO - Train images: 1651
+2025-01-27 18:00:51,383 - INFO - Test images: 206
+2025-01-27 18:00:51,383 - INFO - Validation images: 207
+2025-01-27 18:00:51,383 - INFO - Total time taken: 8.37 seconds
+2025-02-07 17:14:49,351 - INFO - Starting image collection from '/home/lus04/kvmani/ml_works/kaushal_2025/outputs/data8.0/extract_only_tiffs/B/'
+2025-02-07 17:14:49,364 - INFO - Total images found: 58
+2025-02-07 17:14:49,587 - INFO - Using 16 proceses in parallel
+2025-02-07 17:14:50,141 - INFO - Distribution complete.
+2025-02-07 17:14:50,141 - INFO - Train images: 46
+2025-02-07 17:14:50,141 - INFO - Test images: 5
+2025-02-07 17:14:50,141 - INFO - Validation images: 7
+2025-02-07 17:14:50,141 - INFO - Total time taken: 0.79 seconds
+2025-02-07 17:15:07,271 - INFO - Starting image collection from '/home/lus04/kvmani/ml_works/kaushal_2025/outputs/data8.0/extract_only_tiffs/A/'
+2025-02-07 17:15:07,273 - INFO - Total images found: 490
+2025-02-07 17:15:07,304 - INFO - Using 16 proceses in parallel
+2025-02-07 17:15:08,892 - INFO - Distribution complete.
+2025-02-07 17:15:08,892 - INFO - Train images: 392
+2025-02-07 17:15:08,892 - INFO - Test images: 49
+2025-02-07 17:15:08,892 - INFO - Validation images: 49
+2025-02-07 17:15:08,892 - INFO - Total time taken: 1.62 seconds
+2025-02-07 17:58:16,144 - INFO - Starting image collection from '/home/lus04/kvmani/ml_works/kaushal_2025/outputs/data9.0/tiff/A/'
+2025-02-07 17:58:16,148 - INFO - Total images found: 1626
+2025-02-07 17:58:16,178 - INFO - Using 16 proceses in parallel
+2025-02-07 17:58:20,116 - INFO - Distribution complete.
+2025-02-07 17:58:20,116 - INFO - Train images: 1300
+2025-02-07 17:58:20,116 - INFO - Test images: 162
+2025-02-07 17:58:20,116 - INFO - Validation images: 164
+2025-02-07 17:58:20,116 - INFO - Total time taken: 3.97 seconds
+2025-02-07 17:58:32,087 - INFO - Starting image collection from '/home/lus04/kvmani/ml_works/kaushal_2025/outputs/data9.0/tiff/B/'
+2025-02-07 17:58:32,090 - INFO - Total images found: 330
+2025-02-07 17:58:32,117 - INFO - Using 16 proceses in parallel
+2025-02-07 17:58:58,629 - INFO - Distribution complete.
+2025-02-07 17:58:58,629 - INFO - Train images: 264
+2025-02-07 17:58:58,629 - INFO - Test images: 33
+2025-02-07 17:58:58,629 - INFO - Validation images: 33
+2025-02-07 17:58:58,629 - INFO - Total time taken: 26.54 seconds
+2025-02-10 14:30:47,337 - INFO - Starting image collection from '/home/lus04/kvmani/ml_works/kaushal_2025/outputs/data10.0/tiff/B/'
+2025-02-10 14:30:47,366 - INFO - Total images found: 5448
+2025-02-10 14:30:47,535 - INFO - Using 16 proceses in parallel
+2025-02-10 14:32:07,532 - INFO - Distribution complete.
+2025-02-10 14:32:07,532 - INFO - Train images: 4358
+2025-02-10 14:32:07,532 - INFO - Test images: 544
+2025-02-10 14:32:07,532 - INFO - Validation images: 546
+2025-02-10 14:32:07,533 - INFO - Total time taken: 80.20 seconds
+2025-02-10 14:32:15,197 - INFO - Starting image collection from '/home/lus04/kvmani/ml_works/kaushal_2025/outputs/data10.0/tiff/A/'
+2025-02-10 14:32:15,207 - INFO - Total images found: 5448
+2025-02-10 14:32:15,243 - INFO - Using 16 proceses in parallel
+2025-02-10 14:33:16,113 - INFO - Distribution complete.
+2025-02-10 14:33:16,113 - INFO - Train images: 4358
+2025-02-10 14:33:16,113 - INFO - Test images: 544
+2025-02-10 14:33:16,113 - INFO - Validation images: 546
+2025-02-10 14:33:16,113 - INFO - Total time taken: 60.92 seconds
