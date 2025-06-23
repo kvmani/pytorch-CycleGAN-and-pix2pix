@@ -100,4 +100,5 @@ def main():
 
 if __name__ == "__main__":
     main()
-
+ #### how to run:
+# python .\run_kikuchi_inference.py --model_name cyclegan_kikuchi_model_weights/sim_kikuchi_no_preprocess_lr2e-4_decay_400 --input_folder C:\Users\kvman\Documents\ml_data\kikuchi_super_resolution\test_2x2 --results_dir debarna_magnetite_ai_testing
