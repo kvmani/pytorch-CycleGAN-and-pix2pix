@@ -9,6 +9,7 @@ import random
 import platform
 import getpass
 import socket
+import numpy as np
 
 
 # Logging function
@@ -218,6 +219,8 @@ def main():
             time_per_inference = total_time / fake_B_images
             f.write(f"Total Processing Time: {total_time:.2f} seconds\n")
             f.write(f"Time Per Inference: {time_per_inference:.2f} seconds\n")
+            f.write(f"{np.around(60/time_per_inference,0)} number of images per minute\n")
+            print(f"{np.around(60/time_per_inference,0)} number of images per minute\n")
         else:
             f.write("No fake_B images were processed.\n")
         f.write(f"End Time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(end_time))}\n")
