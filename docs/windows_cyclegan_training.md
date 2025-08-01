@@ -7,16 +7,16 @@ This guide explains each step required to train the CycleGAN model in this repos
 CycleGAN expects **unpaired** images from two different domains. The repository uses a structure with `trainA`, `trainB`, `testA`, `testB`, etc. This guide extends it with a `val` split.
 
 1. Create a folder for your dataset, for example `C:\datasets\my_cyclegan_data`.
-2. Inside that folder create three subfolders: `train`, `test`, and `val`.
-3. Within each of these, create two folders named `A` and `B` representing the two domains. The result should look like:
+2. Inside that folder create three subfolders: `trainA`,  `trainB`, `testA`, `testB`, `valA` amd `valB`.
+3. The result should look like:
 
 ```
-C:\datasets\my_cyclegan_data\train\A\  (images from domain A for training)
-C:\datasets\my_cyclegan_data\train\B\  (images from domain B for training)
-C:\datasets\my_cyclegan_data\test\A\   (images from domain A for testing)
-C:\datasets\my_cyclegan_data\test\B\   (images from domain B for testing)
-C:\datasets\my_cyclegan_data\val\A\    (images from domain A for validation)
-C:\datasets\my_cyclegan_data\val\B\    (images from domain B for validation)
+C:\datasets\my_cyclegan_data\trainA\  (images from domain A for training)
+C:\datasets\my_cyclegan_data\trainB\  (images from domain B for training)
+C:\datasets\my_cyclegan_data\testA\   (images from domain A for testing)
+C:\datasets\my_cyclegan_data\testB\   (images from domain B for testing)
+C:\datasets\my_cyclegan_data\valA\    (images from domain A for validation)
+C:\datasets\my_cyclegan_data\valB\    (images from domain B for validation)
 ```
 
 Place your JPG or PNG images in the respective folders. The code automatically scans these directories.

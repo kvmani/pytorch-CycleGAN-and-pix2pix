@@ -80,12 +80,12 @@ def run_cyclegan_test(input_folder, results_dir, model_name):
             '--dataroot', input_folder,
             '--name', model_name,
             '--model', 'cycle_gan',
-            '--input_nc', '1',
-            '--output_nc', '1',
+            '--input_nc', '3', ## if any error like tensor shape not matching comes up se this values to 1
+            '--output_nc', '3',## if any error like tensor shape not matching comes up se this values to 1
             '--load_size', '256',
             '--crop_size', '256',
             '--num_test', '100000',
-            #'--gpu_ids', '-1',
+            #'--gpu_ids', '-1', ##if -1 no GPU acceleration.
         ]
 
         # Check and activate conda environment on Linux
@@ -231,6 +231,8 @@ def main():
 if __name__ == "__main__":
     ### example run command: python .\run_kikuchi_inference.py --model_name cyclegan_kikuchi_model_weights/sim_kikuchi_no_preprocess_lr2e-4_decay_400
     #                                --input_folder C:\Users\kvman\PycharmProjects\kikuchiBandAnalyzer\exported_images\magnetite_data --results_dir debarna_magnetite_ai_processed
+
+   #python .\run_kikuchi_inference.py --model_name cyclegan_kikuchi_model_weights/hcp_Ti_run --input_folder E:\Amrutha\datasets_bhargav_Ti\my_cyclegan_data\valA --results_dir bhargav_Ti_val
     main()
 
 
