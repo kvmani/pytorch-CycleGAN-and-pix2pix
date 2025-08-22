@@ -75,3 +75,8 @@ if __name__ == '__main__':
             model.save_networks(epoch)
 
         print('End of epoch %d / %d \t Time Taken: %d sec' % (epoch, opt.n_epochs + opt.n_epochs_decay, time.time() - epoch_start_time))
+
+
+
+#         command to run the program in the terminal
+# python  train.py --dataroot E:\Amrutha\datasets_bhargav_Ti\my_cyclegan_data --name hcp_Ti_run --model cycle_gan --gpu_ids 0 --load_size 256

@@ -38,20 +38,24 @@ from typing import Dict, List, Tuple
 # ------------------------ USER CONFIGURATION ------------------------ #
 # Replace paths and percentages below with your real data when not using --debug.
 CONFIG: Dict[str, object] = {
-    "target_folder": "E:/cyclegan_target",   # e.g., r"E:/cyclegan_target"
+    "target_folder": r"E:\Vikram\cyclegan_Magnetite_target",   # e.g., r"E:/cyclegan_target"
     "domain_a": {
         "exp_sets": [
-            {"path": "E:/exp_sets/set1", "take_percent": 40, "name": "set1"},
-            {"path": "E:/exp_sets/set2", "take_percent": 30, "name": "set2"},
-            {"path": "E:/exp_sets/set3", "take_percent": 20, "name": "set3"},
-            {"path": "E:/exp_sets/set4", "take_percent": 10, "name": "set4"},
+            {"path": r"E:\Vikram\Experimental\Exp_images", "take_percent": 40, "name": "Mag_exp_"},
+#            {"path": r"E:\Sumit\Patterns_for_training\Carburized\Experimental\Carburized_exp_images", "take_percent": 40, "name": "Carb_"},
+#            {"path": r"E:\Sumit\Patterns_for_training\Normalized\Experimental\Normalized_exp_images", "take_percent": 40, "name": "Norm_"},
+
         ],
-        "split": {"train": 70, "val": 15, "test": 15},  # sums to 100
+        "split": {"train": 90, "val": 5, "test": 5},  # sums to 100
     },
     "domain_b": {
-        "simulated_roots": ["E:/simulated/pool1", "E:/simulated/pool2"],
-        "take_percent": 60,
-        "split": {"train": 70, "val": 15, "test": 15},  # sums to 100
+        "simulated_roots": [r"E:\Vikram\Simulation\Sim_Images",
+                            #r"E:\Sumit\Patterns_for_training\Carburized\Simulated\Carburized_sim_images",
+                            #r"E:\Sumit\Patterns_for_training\Normalized\Simulated\Normalized_sim_images",
+#                            r"E:\Sumit\Patterns_for_training\Normalized\Simulated_synthetic",
+                            ],
+        "take_percent": 40,
+        "split": {"train": 90, "val": 5, "test": 5},  # sums to 100
     },
     "random_seed": 42,
     "operation": "copy",  # "copy" | "move" | "symlink"

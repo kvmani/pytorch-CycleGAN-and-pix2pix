@@ -112,11 +112,12 @@ class Visualizer:
 if __name__ == '__main__':
     # Example configuration
     config = {
-        "input_dir": r"C:\Users\kvman\Documents\ml_data\TestingDataForPrepareCyclegANCode\simulated",
-        "output_dir": "./output",
+        #"input_dir": r"C:\Users\kvman\Documents\ml_data\TestingDataForPrepareCyclegANCode\simulated",
+        "input_dir": r"E:\Sumit\Patterns_for_training\Normalized\Simulated\Normalized_sim_images",
+        "output_dir": r"E:\Sumit\Patterns_for_training\Normalized\Simulated_synthetic",
         "debug": False,
         "visualize_each": False,
-        "n_samples": 5
+        "n_samples": 2000,
     }
 
     combiner = ImageCombiner(config)

@@ -80,8 +80,8 @@ def run_cyclegan_test(input_folder, results_dir, model_name):
             '--dataroot', input_folder,
             '--name', model_name,
             '--model', 'cycle_gan',
-            '--input_nc', '3', ## if any error like tensor shape not matching comes up se this values to 1
-            '--output_nc', '3',## if any error like tensor shape not matching comes up se this values to 1
+            '--input_nc', '1', ## if any error like tensor shape not matching comes up se this values to 1
+            '--output_nc', '1',## if any error like tensor shape not matching comes up se this values to 1
             '--load_size', '256',
             '--crop_size', '256',
             '--num_test', '100000',
