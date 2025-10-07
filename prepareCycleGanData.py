@@ -38,10 +38,10 @@ from typing import Dict, List, Tuple
 # ------------------------ USER CONFIGURATION ------------------------ #
 # Replace paths and percentages below with your real data when not using --debug.
 CONFIG: Dict[str, object] = {
-    "target_folder": r"E:\Vikram\cyclegan_Magnetite_target",   # e.g., r"E:/cyclegan_target"
+    "target_folder": r"E:\Mahendra\cyclegan_Magnetite_target",   # e.g., r"E:/cyclegan_target"
     "domain_a": {
         "exp_sets": [
-            {"path": r"E:\Vikram\Experimental\Exp_images", "take_percent": 40, "name": "Mag_exp_"},
+            {"path": r"E:\Mahendra\Experimental\Exp_images", "take_percent": 60, "name": "Mag_exp_"},
 #            {"path": r"E:\Sumit\Patterns_for_training\Carburized\Experimental\Carburized_exp_images", "take_percent": 40, "name": "Carb_"},
 #            {"path": r"E:\Sumit\Patterns_for_training\Normalized\Experimental\Normalized_exp_images", "take_percent": 40, "name": "Norm_"},
 
@@ -49,7 +49,7 @@ CONFIG: Dict[str, object] = {
         "split": {"train": 90, "val": 5, "test": 5},  # sums to 100
     },
     "domain_b": {
-        "simulated_roots": [r"E:\Vikram\Simulation\Sim_Images",
+        "simulated_roots": [r"E:\Mahendra\Simuated\Sim_images",
                             #r"E:\Sumit\Patterns_for_training\Carburized\Simulated\Carburized_sim_images",
                             #r"E:\Sumit\Patterns_for_training\Normalized\Simulated\Normalized_sim_images",
 #                            r"E:\Sumit\Patterns_for_training\Normalized\Simulated_synthetic",

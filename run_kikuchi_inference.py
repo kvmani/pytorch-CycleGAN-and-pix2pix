@@ -11,9 +11,7 @@ import getpass
 import socket
 import numpy as np
 
-
 # Logging function
-
 def log(message, log_file=None):
     timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
     formatted_message = f"[{timestamp}] {message}"
@@ -34,7 +32,7 @@ def setup_test_folders(input_folder, debug):
     os.makedirs(testB_dir, exist_ok=True)
 
     # Get all image files
-    images = [f for f in os.listdir(input_folder) if f.endswith('.jpg') or f.endswith('.png')]
+    images = [f for f in os.listdir(input_folder) if f.lower().endswith(('.jpg', '.png', '.bmp'))]
 
     if debug:
         log("Debug mode is enabled. Processing only the first 20 images.")
@@ -60,17 +58,15 @@ def setup_test_folders(input_folder, debug):
 
     return testA_dir, testB_dir
 
-
 # Function to remove testA and testB folders
 def clean_test_folders(testA_dir, testB_dir):
     log(f"Removing testA and testB directories: {testA_dir}, {testB_dir}")
     shutil.rmtree(testA_dir)
     shutil.rmtree(testB_dir)
 
-
 # Function to activate conda environment and run CycleGAN test script
-def run_cyclegan_test(input_folder, results_dir, model_name):
-    log(f"Running CycleGAN test script for model: {model_name}")
+def run_cyclegan_test(input_folder, results_dir, model_name, epoch):
+    log(f"Running CycleGAN test script for model: {model_name} (epoch={epoch})")
 
     try:
         # Construct the command to run test.py
@@ -80,12 +76,13 @@ def run_cyclegan_test(input_folder, results_dir, model_name):
             '--dataroot', input_folder,
             '--name', model_name,
             '--model', 'cycle_gan',
-            '--input_nc', '1', ## if any error like tensor shape not matching comes up se this values to 1
-            '--output_nc', '1',## if any error like tensor shape not matching comes up se this values to 1
+            '--input_nc', '3',   # if tensor-shape mismatch occurs, try setting to 1
+            '--output_nc', '3',  # if tensor-shape mismatch occurs, try setting to 1
             '--load_size', '256',
             '--crop_size', '256',
             '--num_test', '100000',
-            #'--gpu_ids', '-1', ##if -1 no GPU acceleration.
+            '--epoch', epoch,
+            # '--gpu_ids', '-1',  # uncomment to force CPU
         ]
 
         # Check and activate conda environment on Linux
@@ -102,16 +99,17 @@ def run_cyclegan_test(input_folder, results_dir, model_name):
         log(f"Error occurred during CycleGAN test: {e}")
         sys.exit(1)
 
-
 # Function to process images: rename, resize, and convert to grayscale
-def process_images(results_dir, model_name, target_size):
+def process_images(results_dir, model_name, target_size, epoch):
     log("Starting image processing...")
 
-    # Set up paths
-    output_path = os.path.join(results_dir, model_name, 'test_latest', 'images')
+    # Set up epoch-aware results path: <results_dir>/<name>/test_<epoch>/images
+    output_path = os.path.join(results_dir, model_name, f'test_{epoch}', 'images')
 
     if not os.path.exists(output_path):
-        log(f"Output path {output_path} does not exist.")
+        log(f"Output path {output_path} does not exist. "
+            f"Expected results under '{os.path.join(results_dir, model_name, f'test_{epoch}')}'. "
+            f"Verify that test.py ran with --epoch {epoch} and that the run name is correct.")
         sys.exit(1)
 
     # Process images in the output folder
@@ -137,8 +135,8 @@ def process_images(results_dir, model_name, target_size):
             img.save(img_path)
 
     # Clean up unnecessary files
-    for suffix in ['_real_A.png', '_rec_A.png', '_fake_A.png', '_rec_A.png', '_rec_B.png', '_real_B.png']:
-        for file in os.listdir(output_path):
+    for suffix in ['_real_A.png', '_rec_A.png', '_fake_A.png', '_rec_B.png', '_real_B.png']:
+        for file in list(os.listdir(output_path)):
             if file.endswith(suffix):
                 file_path = os.path.join(output_path, file)
                 log(f"Removing {file_path}")
@@ -155,6 +153,7 @@ def record_run_details(log_file, args, start_time):
         f.write(f"Input Data Folder: {args.input_folder}\n")
         f.write(f"Results Directory: {args.results_dir}\n")
         f.write(f"Model Name: {args.model_name}\n")
+        f.write(f"Epoch: {args.epoch}\n")
         f.write(f"Target Size for Resizing: {args.target_size}\n")
         f.write(f"Debug Mode: {args.debug}\n")
         f.write(f"Start Time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(start_time))}\n")
@@ -169,16 +168,18 @@ def record_run_details(log_file, args, start_time):
         f.write(f"Python Version: {platform.python_version()}\n")
         f.write(f"Current Working Directory: {os.getcwd()}\n")
         f.write(f"Available CPU Cores: {os.cpu_count()}\n")
-
         f.write("=================================\n\n")
+
 # Main function to handle the entire workflow
 def main():
     parser = argparse.ArgumentParser(description="CycleGAN Inference and Image Processing Script")
     parser.add_argument('--input_folder', required=True, help="Path to the input data folder")
     parser.add_argument('--results_dir', required=True, help="Path to the results directory")
-    parser.add_argument('--model_name', required=True, help="Model name to locate results")
-    parser.add_argument('--target_size', type=int, default=230, help="Target size for image resizing (default: 230X230)")
+    parser.add_argument('--model_name', required=True, help="Model name (CycleGAN run name) to locate results")
+    parser.add_argument('--target_size', type=int, default=230, help="Target size for image resizing (default: 230x230)")
     parser.add_argument('--debug', action='store_true', help="Debug mode to process only the first 20 images")
+    parser.add_argument('--epoch', type=str, default='latest',
+                        help="Checkpoint epoch to load (e.g. 'latest', '75', '120'). Default: 'latest'")
 
     args = parser.parse_args()
 
@@ -199,11 +200,11 @@ def main():
 
     # Step 2: Run CycleGAN inference (test.py)
     log(f"Starting CycleGAN inference with model: {args.model_name}", log_file)
-    run_cyclegan_test(args.input_folder, args.results_dir, args.model_name)
+    run_cyclegan_test(args.input_folder, args.results_dir, args.model_name, args.epoch)
 
     # Step 3: Process images (resize, grayscale, and clean up)
     log(f"Processing images in the results directory: {args.results_dir}", log_file)
-    fake_B_images = process_images(args.results_dir, args.model_name, args.target_size)
+    fake_B_images = process_images(args.results_dir, args.model_name, args.target_size, args.epoch)
 
     # Step 4: Clean up testA and testB directories
     clean_test_folders(testA_dir, testB_dir)
@@ -219,8 +220,8 @@ def main():
             time_per_inference = total_time / fake_B_images
             f.write(f"Total Processing Time: {total_time:.2f} seconds\n")
             f.write(f"Time Per Inference: {time_per_inference:.2f} seconds\n")
-            f.write(f"{np.around(60/time_per_inference,0)} number of images per minute\n")
-            print(f"{np.around(60/time_per_inference,0)} number of images per minute\n")
+            f.write(f"{np.around(60 / time_per_inference, 0)} number of images per minute\n")
+            print(f"{np.around(60 / time_per_inference, 0)} number of images per minute\n")
         else:
             f.write("No fake_B images were processed.\n")
         f.write(f"End Time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(end_time))}\n")
@@ -229,10 +230,8 @@ def main():
     log(f"Run details saved to: {log_file}", log_file)
 
 if __name__ == "__main__":
-    ### example run command: python .\run_kikuchi_inference.py --model_name cyclegan_kikuchi_model_weights/sim_kikuchi_no_preprocess_lr2e-4_decay_400
-    #                                --input_folder C:\Users\kvman\PycharmProjects\kikuchiBandAnalyzer\exported_images\magnetite_data --results_dir debarna_magnetite_ai_processed
-
-   #python .\run_kikuchi_inference.py --model_name cyclegan_kikuchi_model_weights/hcp_Ti_run --input_folder E:\Amrutha\datasets_bhargav_Ti\my_cyclegan_data\valA --results_dir bhargav_Ti_val
+    # Example:
+    # python run_kikuchi_inference.py --model_name cyclegan_kikuchi_model_weights/hcp_Ti_run \
+    #    --input_folder E:\Amrutha\datasets_bhargav_Ti\my_cyclegan_data\valA \
+    #    --results_dir bhargav_Ti_val --epoch 80  (if you want to use epoch 80 for inference. else just dont specify defaults to 'latest' epoch
     main()
-
-

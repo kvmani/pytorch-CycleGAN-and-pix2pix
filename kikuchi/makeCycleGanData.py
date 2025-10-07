@@ -57,8 +57,8 @@ def process_image(args):
 
 def distribute_images(input_folder, image_paths, output_folder, circular_mask, dataSetString="B", resize=None, num_workers=4):
     random.shuffle(image_paths)
-    train_split = int(0.8 * len(image_paths))
-    test_split = int(0.1 * len(image_paths))
+    train_split = int(0.95 * len(image_paths))
+    test_split = int(0.05 * len(image_paths))
 
     datasets = {
         f'train{dataSetString}': image_paths[:train_split],
@@ -155,15 +155,15 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Distribute images into train, test, and validation folders.')
-    parser.add_argument('--input_folder', type=str, default=r"/home/lus04/kvmani/ml_works/kaushal_2025/outputs/data2.0/tiff/B/",
+    parser.add_argument('--input_folder', type=str, default=r"E:\Vikram\Square_simulated\Sq_Simulated",
                         help='Root input folder containing images')
-    parser.add_argument('--output_folder', type=str, default=r"/home/lus04/kvmani/ml_works/kaushal_2025/outputs/data2.0/tiff_for_ML/",
+    parser.add_argument('--output_folder', type=str, default=r"E:\Vikram\Square_simulated\Sq_Simulated\masked",
                         help='Target output folder to store the datasets')
     parser.add_argument('--dataSetString', type=str, default="B", help='A or B')
     parser.add_argument('--resize', type=int, default=256, help='Resize images to target size (e.g., 256)')
-    parser.add_argument('--circular_mask', type=bool, default=False, help='whether or not to apply circular mask')
-    parser.add_argument('--fraction', type=float, default=1.0,
-                        help='Fraction of total images to process (0.0 < fraction <= 1.0)')
+    parser.add_argument('--circular_mask', type=bool, default=True, help='whether or not to apply circular mask')
+    parser.add_argument('--fraction', type=float, default=0.35,
+                        help='Fraction of total images to process (0.0 < fraction <= 1)')
     parser.add_argument('--num_workers', type=int, default=16, help='Number of CPU cores to use for parallel processing')
     
 
