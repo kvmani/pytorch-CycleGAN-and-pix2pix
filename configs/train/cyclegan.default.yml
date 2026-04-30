@@ -1,0 +1,22 @@
+schema_version: microi2i.train_config.v1
+workflow: cyclegan_training
+output_root: artifacts/runs
+dry_run: false
+runtime:
+  gpu_ids: "0"
+  seed: 42
+training:
+  legacy_script: train.py
+  legacy_args:
+    - --dataroot
+    - ./datasets/maps
+    - --name
+    - microscopy_cyclegan
+    - --model
+    - cycle_gan
+    - --dataset_mode
+    - unaligned
+    - --gpu_ids
+    - "0"
+notes:
+  purpose: Default migration-layer CycleGAN training config. Replace dataroot/name for real work.

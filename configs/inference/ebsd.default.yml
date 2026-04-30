@@ -1,0 +1,9 @@
+schema_version: microi2i.inference_config.v1
+workflow: ebsd_inference
+output_root: artifacts/runs
+dry_run: false
+inference:
+  legacy_script: run_ebsd_inference.py
+  legacy_args: []
+notes:
+  purpose: EBSD inference migration wrapper. Parameterized config will replace script defaults in a later phase.

@@ -1,0 +1,24 @@
+schema_version: microi2i.train_config.v1
+workflow: pix2pix_training
+output_root: artifacts/runs
+dry_run: false
+runtime:
+  gpu_ids: "0"
+  seed: 42
+training:
+  legacy_script: train.py
+  legacy_args:
+    - --dataroot
+    - ./datasets/facades
+    - --name
+    - microscopy_pix2pix
+    - --model
+    - pix2pix
+    - --dataset_mode
+    - aligned
+    - --direction
+    - BtoA
+    - --gpu_ids
+    - "0"
+notes:
+  purpose: Default migration-layer pix2pix training config. Replace dataroot/name for real work.

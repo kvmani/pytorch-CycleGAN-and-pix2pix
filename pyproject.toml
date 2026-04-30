@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "microi2i"
+version = "0.1.0"
+description = "Scientific microscopy image-to-image translation platform built on pix2pix and CycleGAN"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "BSD-2-Clause"}
+dependencies = [
+    "PyYAML",
+    "numpy",
+    "Pillow",
+]
+
+[project.optional-dependencies]
+torch = [
+    "torch",
+    "torchvision",
+]
+dev = [
+    "pytest",
+]
+
+[project.scripts]
+microi2i = "microi2i.app.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

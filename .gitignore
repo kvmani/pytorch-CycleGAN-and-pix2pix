@@ -1,21 +1,116 @@
+# OS and editor files
 .DS_Store
-debug*
-datasets/
-checkpoints/
-results/
+Thumbs.db
+Desktop.ini
+*~
+.idea/
+.vscode/
+
+# Python caches and test artifacts
+__pycache__/
+*/__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+
+# Python packaging and build outputs
 build/
 dist/
-*.png
-torch.egg-info/
-*/**/__pycache__
+site/
+*.egg-info/
+*.egg
+pip-wheel-metadata/
+
+# Local environments
+.venv/
+venv/
+env/
+ENV/
+.conda/
+
+# Notebook and interactive artifacts
+.ipynb_checkpoints/
+*.nbconvert.ipynb
+
+# Logs and transient runtime outputs
+*.log
+*.out
+debug*/
+wandb/
+visdom/
+
+# Project generated outputs
+artifacts/*
+!artifacts/.gitkeep
+output/
+outputs/
+results/
+checkpoints/
+datasets/
+tmp/
+runs/
+
+# Documentation builds
+docs/_build/
+docs/.doctrees/
+docs/src/
+
+# ML model binaries and large scientific arrays
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.engine
+*.h5
+*.hdf5
+*.npy
+*.npz
+*.mat
+*.tfrecord
+*.tfrecords
+
+# Keep model metadata and checkpoint lifecycle placeholders trackable
+!frozen_checkpoints/model_registry.json
+!frozen_checkpoints/**/.gitkeep
+frozen_checkpoints/**/*.pt
+frozen_checkpoints/**/*.pth
+frozen_checkpoints/**/*.ckpt
+frozen_checkpoints/**/*.onnx
+frozen_checkpoints/**/*.engine
+
+# Generated media and reports inside output-like folders
+**/test_latest/images/
+**/web/images/
+**/web/index.html
+**/logs/
+*.pptx
+
+# Local experiment folders currently present in this workspace
+/2X2Vs1X1_review/
+/accuracy_testing/
+/debarna_magnetite_28_12_24_coarsened_AI/
+/debarna_magnetite_30_12_24_coarsened_A/
+/debarna_magnetite_ai_processed/
+/debarna_magnetite_ai_testing/
+/debarna_magnetite_coarsened_ai_processed/
+/debarna_test/
+
+# Legacy upstream / embedded torch build products
 torch/version.py
 torch/csrc/generic/TensorMethods.cpp
 torch/lib/*.so*
 torch/lib/*.dylib*
 torch/lib/*.h
-torch/lib/build
-torch/lib/tmp_install
-torch/lib/include
+torch/lib/build/
+torch/lib/tmp_install/
+torch/lib/include/
 torch/lib/torch_shm_manager
 torch/csrc/cudnn/cuDNN.cpp
 torch/csrc/nn/THNN.cwrap
@@ -25,24 +120,6 @@ torch/csrc/nn/THCUNN.cpp
 torch/csrc/nn/THNN_generic.cwrap
 torch/csrc/nn/THNN_generic.cpp
 torch/csrc/nn/THNN_generic.h
-docs/src/**/*
 test/data/legacy_modules.t7
 test/data/gpu_tensors.pt
-test/htmlcov
-test/.coverage
-*/*.pyc
-*/**/*.pyc
-*/**/**/*.pyc
-*/**/**/**/*.pyc
-*/**/**/**/**/*.pyc
-*/*.so*
-*/**/*.so*
-*/**/*.dylib*
 test/data/legacy_serialized.pt
-*~
-.idea
-
-#Ignore Wandb
-wandb/
-*.out
-checkpoints/

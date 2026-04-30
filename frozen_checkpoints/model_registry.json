@@ -1,0 +1,47 @@
+{
+  "schema_version": "microi2i.model_registry.v1",
+  "models": [
+    {
+      "model_id": "smoke_pix2pix_unet256",
+      "display_name": "Smoke pix2pix U-Net 256",
+      "model_family": "pix2pix",
+      "task_type": "paired_translation",
+      "framework": "pytorch",
+      "checkpoint_path_hint": "frozen_checkpoints/smoke/smoke_pix2pix_unet256/latest_net_G.pth",
+      "input_assumptions": {
+        "channels": 3,
+        "image_size": 256,
+        "paired_layout": "aligned"
+      },
+      "training_dataset": {
+        "dataset_id": "smoke_or_placeholder",
+        "manifest_path": ""
+      },
+      "metrics": {},
+      "scientific_use": "Pipeline smoke testing only until replaced by validated microscopy checkpoints.",
+      "limitations": "Not approved for scientific interpretation.",
+      "status": "smoke"
+    },
+    {
+      "model_id": "smoke_cyclegan_resnet9",
+      "display_name": "Smoke CycleGAN ResNet-9",
+      "model_family": "cycle_gan",
+      "task_type": "unpaired_translation",
+      "framework": "pytorch",
+      "checkpoint_path_hint": "frozen_checkpoints/smoke/smoke_cyclegan_resnet9/latest_net_G_A.pth",
+      "input_assumptions": {
+        "channels": 3,
+        "image_size": 256,
+        "domain_layout": "trainA_trainB"
+      },
+      "training_dataset": {
+        "dataset_id": "smoke_or_placeholder",
+        "manifest_path": ""
+      },
+      "metrics": {},
+      "scientific_use": "Pipeline smoke testing only until replaced by validated microscopy checkpoints.",
+      "limitations": "Not approved for scientific interpretation.",
+      "status": "smoke"
+    }
+  ]
+}

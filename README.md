@@ -1,4 +1,31 @@
 
+# MicroI2I Scientific Microscopy Image Translation Platform
+
+This branch is restructuring the original PyTorch CycleGAN/pix2pix repository into a scientific microscopy image-to-image translation platform.
+
+The new canonical interface is `microi2i`, with config-driven workflows for pix2pix, CycleGAN, dataset preparation, inference, evaluation, model registry validation, and provenance manifest generation.
+
+Start here:
+
+- Repository contract: [AGENTS.md](AGENTS.md)
+- Mission: [docs/mission_statement.md](docs/mission_statement.md)
+- Target architecture: [docs/repository_blueprint.md](docs/repository_blueprint.md)
+- Provenance standards: [docs/code_provenance_and_manifests.md](docs/code_provenance_and_manifests.md)
+- Commands: [docs/usage_commands.md](docs/usage_commands.md)
+
+Example commands:
+
+```bash
+python scripts/microi2i_cli.py models --details
+python scripts/microi2i_cli.py validate-registry
+python scripts/microi2i_cli.py train --config configs/train/pix2pix.default.yml --dry-run
+python scripts/microi2i_cli.py infer --config configs/inference/folder.default.yml --dry-run
+```
+
+The original upstream README content is retained below during migration so the current CycleGAN/pix2pix behavior remains understandable while workflows are absorbed into `src/microi2i/`.
+
+---
+
 <img src='imgs/horse2zebra.gif' align="right" width=384>
 
 <br><br><br>

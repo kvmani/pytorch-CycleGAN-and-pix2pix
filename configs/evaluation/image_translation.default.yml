@@ -1,0 +1,13 @@
+schema_version: microi2i.evaluation_config.v1
+output_root: artifacts/runs
+metrics:
+  - mae
+  - rmse
+  - psnr
+  - ssim
+  - edge_preservation
+inputs:
+  predictions_dir: ./artifacts/predictions
+  targets_dir: ./artifacts/targets
+notes:
+  purpose: Default scientific image translation evaluation config.

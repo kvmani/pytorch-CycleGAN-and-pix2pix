@@ -1,0 +1,20 @@
+schema_version: microi2i.inference_config.v1
+workflow: folder_inference
+output_root: artifacts/runs
+dry_run: false
+runtime:
+  gpu_ids: "-1"
+inference:
+  legacy_script: test.py
+  legacy_args:
+    - --dataroot
+    - ./datasets/horse2zebra/testA
+    - --name
+    - microscopy_inference
+    - --model
+    - test
+    - --no_dropout
+    - --gpu_ids
+    - "-1"
+notes:
+  purpose: Default migration-layer folder inference config. Replace dataroot/name/model options for real work.
