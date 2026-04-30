@@ -16,3 +16,9 @@ def test_smoke_gate_dry_run_command_plan(monkeypatch) -> None:
     assert len(calls) == 3
     assert all("--dry-run" in command for label, command in calls if "train" in label)
     assert any("infer" in command for _, command in calls)
+
+
+def test_smoke_gate_real_training_reports_missing_dependencies(monkeypatch) -> None:
+    monkeypatch.setattr(smoke_gate, "_missing_real_training_dependencies", lambda: ["dominate"])
+
+    assert smoke_gate.main(["--run-training"]) == 2

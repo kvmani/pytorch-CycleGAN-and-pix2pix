@@ -46,6 +46,7 @@ A new backend must:
 - register a unique `model_backend` ID,
 - implement train/infer command or execution behavior,
 - emit backend metadata into run reports,
+- add or update model registry records that reference the backend ID,
 - include config presets,
 - include unit tests and CLI dry-run integration tests,
 - include smoke behavior when computationally feasible,

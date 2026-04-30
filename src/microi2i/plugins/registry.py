@@ -10,6 +10,7 @@ from typing import Any
 
 
 ALLOWED_MODEL_STATUSES = {"smoke", "candidate", "promoted", "deprecated"}
+KNOWN_MODEL_BACKENDS = {"legacy_pix2pix", "legacy_cyclegan"}
 REQUIRED_MODEL_FIELDS = {
     "model_id",
     "display_name",
@@ -23,6 +24,7 @@ REQUIRED_MODEL_FIELDS = {
     "scientific_use",
     "limitations",
     "status",
+    "model_backend",
 }
 
 
@@ -63,6 +65,9 @@ def validate_model_registry(registry: dict[str, Any]) -> list[str]:
         status = str(record.get("status", "")).strip()
         if status and status not in ALLOWED_MODEL_STATUSES:
             errors.append(f"models[{index}].status must be one of {sorted(ALLOWED_MODEL_STATUSES)}")
+        backend = str(record.get("model_backend", "")).strip()
+        if backend and backend not in KNOWN_MODEL_BACKENDS:
+            errors.append(f"models[{index}].model_backend must be one of {sorted(KNOWN_MODEL_BACKENDS)}")
     return errors
 
 

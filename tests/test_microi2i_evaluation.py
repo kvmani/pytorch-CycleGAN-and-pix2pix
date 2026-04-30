@@ -3,7 +3,7 @@ from __future__ import annotations
 import numpy as np
 from PIL import Image
 
-from microi2i.evaluation.image_translation import evaluate_paired_directories
+from microi2i.evaluation.image_translation import evaluate_paired_directories, write_evaluation_review_artifacts
 
 
 def test_evaluate_paired_directories_computes_basic_metrics(tmp_path) -> None:
@@ -41,3 +41,24 @@ def test_evaluate_identical_gradient_image_has_perfect_fidelity_metrics(tmp_path
     assert sample["histogram_l1"] == 0.0
     assert sample["gradient_correlation"] == 1.0
     assert report["aggregate"]["psnr_mean"] == float("inf")
+
+
+def test_evaluation_review_artifacts_include_best_and_worst_samples(tmp_path) -> None:
+    pred_dir = tmp_path / "pred"
+    target_dir = tmp_path / "target"
+    pred_dir.mkdir()
+    target_dir.mkdir()
+    Image.new("RGB", (8, 8), (10, 10, 10)).save(pred_dir / "good.png")
+    Image.new("RGB", (8, 8), (10, 10, 10)).save(target_dir / "good.png")
+    Image.new("RGB", (8, 8), (0, 0, 0)).save(pred_dir / "bad.png")
+    Image.new("RGB", (8, 8), (100, 100, 100)).save(target_dir / "bad.png")
+    report = evaluate_paired_directories(pred_dir, target_dir)
+
+    review = write_evaluation_review_artifacts(report, tmp_path / "run", metric="mae", limit=1)
+
+    assert review["sample_count"] == 2
+    assert (tmp_path / "run" / "evaluation_outliers.csv").exists()
+    assert (tmp_path / "run" / "evaluation_review.html").exists()
+    csv_text = (tmp_path / "run" / "evaluation_outliers.csv").read_text(encoding="utf-8")
+    assert "good.png" in csv_text
+    assert "bad.png" in csv_text

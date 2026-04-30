@@ -3,12 +3,18 @@
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import subprocess
 import sys
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+REAL_TRAINING_DEPENDENCIES = ["torch", "torchvision", "dominate"]
+
+
+def _missing_real_training_dependencies() -> list[str]:
+    return [name for name in REAL_TRAINING_DEPENDENCIES if importlib.util.find_spec(name) is None]
 
 
 def _run(label: str, command: list[str]) -> int:
@@ -25,6 +31,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--run-training", action="store_true", help="Run real tiny CPU training instead of dry-runs")
     parser.add_argument("--skip-data", action="store_true", help="Skip smoke dataset creation")
     args = parser.parse_args(argv)
+    if args.run_training:
+        missing = _missing_real_training_dependencies()
+        if missing:
+            print(
+                "Real smoke training requires missing dependencies: " + ", ".join(missing),
+                file=sys.stderr,
+            )
+            return 2
 
     checks: list[tuple[str, list[str]]] = []
     if not args.skip_data:

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from math import log10, sqrt
 from pathlib import Path
+import shutil
 from typing import Any
 
 import numpy as np
@@ -185,4 +186,95 @@ def evaluate_paired_directories(predictions_dir: str | Path, targets_dir: str | 
             "high_frequency_energy_ratio_mean": _mean_optional(rows, "high_frequency_energy_ratio"),
             "laplacian_sharpness_ratio_mean": _mean_optional(rows, "laplacian_sharpness_ratio"),
         },
+    }
+
+
+def write_evaluation_review_artifacts(
+    report: dict[str, Any],
+    run_dir: str | Path,
+    *,
+    metric: str = "mae",
+    lower_is_better: bool = True,
+    limit: int = 5,
+) -> dict[str, Any]:
+    """Write best/worst sample tables and review HTML for an evaluation report."""
+
+    output_dir = Path(run_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    samples = [row for row in report.get("samples", []) if isinstance(row.get(metric), int | float)]
+    ranked = sorted(samples, key=lambda row: float(row[metric]), reverse=not lower_is_better)
+    best = ranked[:limit]
+    worst = list(reversed(ranked[-limit:])) if len(ranked) > limit else list(reversed(ranked))
+    csv_path = output_dir / "evaluation_outliers.csv"
+    html_path = output_dir / "evaluation_review.html"
+    panels_dir = output_dir / "evaluation_panels"
+    panels_dir.mkdir(exist_ok=True)
+
+    pred_root = Path(str(report.get("predictions_dir", "")))
+    target_root = Path(str(report.get("targets_dir", "")))
+    rows = []
+    for group, group_rows in (("best", best), ("worst", worst)):
+        for index, row in enumerate(group_rows):
+            sample = str(row["sample"])
+            pred_source = pred_root / sample
+            target_source = target_root / sample
+            pred_target = panels_dir / f"{group}_{index:02d}_prediction_{sample}"
+            target_target = panels_dir / f"{group}_{index:02d}_target_{sample}"
+            pred_rel = ""
+            target_rel = ""
+            if pred_source.exists():
+                shutil.copy2(pred_source, pred_target)
+                pred_rel = str(pred_target.relative_to(output_dir))
+            if target_source.exists():
+                shutil.copy2(target_source, target_target)
+                target_rel = str(target_target.relative_to(output_dir))
+            rows.append(
+                {
+                    "group": group,
+                    "sample": sample,
+                    "metric": metric,
+                    "value": row[metric],
+                    "prediction": pred_rel,
+                    "target": target_rel,
+                }
+            )
+
+    csv_path.write_text(
+        "group,sample,metric,value,prediction,target\n"
+        + "".join(
+            f"{row['group']},{row['sample']},{row['metric']},{row['value']},{row['prediction']},{row['target']}\n"
+            for row in rows
+        ),
+        encoding="utf-8",
+    )
+    cards = []
+    for row in rows:
+        cards.append(
+            "<section class='card'>"
+            f"<h2>{row['group']}: {row['sample']}</h2>"
+            f"<p>{metric}: {row['value']}</p>"
+            "<div class='pair'>"
+            f"<figure><img src='{row['prediction'].replace(chr(92), '/')}' alt='prediction'><figcaption>Prediction</figcaption></figure>"
+            f"<figure><img src='{row['target'].replace(chr(92), '/')}' alt='target'><figcaption>Target</figcaption></figure>"
+            "</div></section>"
+        )
+    html_path.write_text(
+        "<!doctype html><html><head><meta charset='utf-8'><title>MicroI2I Evaluation Review</title>"
+        "<style>body{font-family:Arial,sans-serif;margin:2rem;background:#f8fafc;color:#0f172a}"
+        ".card{background:white;border:1px solid #cbd5e1;border-radius:12px;padding:1rem;margin-bottom:1rem}"
+        ".pair{display:grid;grid-template-columns:1fr 1fr;gap:1rem}"
+        "img{width:100%;height:240px;object-fit:contain;background:#f1f5f9;border-radius:8px}"
+        "figcaption{text-align:center;font-weight:600}</style></head><body>"
+        f"<h1>Evaluation Review</h1><p>Metric: {metric}</p>{''.join(cards)}</body></html>",
+        encoding="utf-8",
+    )
+    return {
+        "schema_version": "microi2i.evaluation_review.v1",
+        "metric": metric,
+        "lower_is_better": lower_is_better,
+        "limit": limit,
+        "sample_count": len(rows),
+        "csv": csv_path.name,
+        "html": html_path.name,
+        "panels_dir": panels_dir.name,
     }

@@ -56,6 +56,10 @@ metric-aware best/worst review panels.
 - Add per-sample and aggregate reports, best/worst sample panels, and run comparison.
 - Document every metric with formula, interpretation, and limitations.
 
+Current status: paired evaluation now emits best/worst outlier CSV and HTML review panels based on
+a configurable ranking metric. Remaining work is metric-family grouping, EBSD/Kikuchi-specific
+band proxies, and multi-run visual comparison dashboards.
+
 ## Phase 6: Model Registry And Lifecycle
 
 - Extend model lifecycle states: `smoke`, `candidate`, `promoted`, and `deprecated`.
@@ -63,6 +67,9 @@ metric-aware best/worst review panels.
 - Track dataset manifest, metrics, intended use, limitations, and promotion decision evidence.
 - Support a git-ignored local overlay registry for machine-specific checkpoint paths.
 - Require objective promotion criteria and documentation before scientific use.
+
+Current status: registry entries are linked to `model_backend` IDs and validation rejects unknown
+backend names. Remaining work is local overlay registry support and objective promotion-rule checks.
 
 ## Phase 7: New Model And Algorithm Frontiers
 

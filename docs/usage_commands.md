@@ -270,6 +270,16 @@ It reports fidelity metrics, optional SSIM, and microscopy-oriented structure pr
 - high-frequency energy ratio
 - Laplacian sharpness ratio
 
+Evaluation also writes `evaluation_outliers.csv` and `evaluation_review.html` when same-named pairs
+are available. Configure the outlier ranking:
+
+```yaml
+review:
+  ranking_metric: mae
+  lower_is_better: true
+  limit: 5
+```
+
 ## Compare Runs
 
 Compare two or more evaluation reports by an aggregate metric:

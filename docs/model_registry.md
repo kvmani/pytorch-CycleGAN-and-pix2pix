@@ -32,6 +32,7 @@ Metadata should be tracked.
 - `scientific_use`
 - `limitations`
 - `status`
+- `model_backend`
 
 ## Promotion Standard
 

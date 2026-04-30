@@ -9,5 +9,9 @@ metrics:
 inputs:
   predictions_dir: ./artifacts/predictions
   targets_dir: ./artifacts/targets
+review:
+  ranking_metric: mae
+  lower_is_better: true
+  limit: 5
 notes:
   purpose: Default scientific image translation evaluation config.

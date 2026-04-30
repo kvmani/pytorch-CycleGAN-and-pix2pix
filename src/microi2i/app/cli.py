@@ -16,7 +16,7 @@ from microi2i.dataops.smoke_data import create_smoke_datasets
 from microi2i.io.configuration import apply_overrides, load_config
 from microi2i.inference.legacy_runner import materialize_inference_inputs, package_prediction_images
 from microi2i.manifests.reporting import finalize_run, start_run
-from microi2i.evaluation.image_translation import evaluate_paired_directories
+from microi2i.evaluation.image_translation import evaluate_paired_directories, write_evaluation_review_artifacts
 from microi2i.models.backends import get_model_backend, infer_backend_id
 from microi2i.plugins.registry import (
     compare_run_reports,
@@ -410,7 +410,26 @@ def cmd_evaluate(args: argparse.Namespace) -> int:
         "configured_metrics": cfg.get("metrics", []),
         "metrics": metric_payload,
     }
+    if metric_payload["status"] == "computed":
+        review_cfg = cfg.get("review", {})
+        if not isinstance(review_cfg, dict):
+            review_cfg = {}
+        review = write_evaluation_review_artifacts(
+            metric_payload,
+            run.run_dir,
+            metric=str(review_cfg.get("ranking_metric", "mae")),
+            lower_is_better=bool(review_cfg.get("lower_is_better", True)),
+            limit=int(review_cfg.get("limit", 5)),
+        )
+        report["review"] = review
     run.add_artifact("report.json", "report", "Evaluation report", report)
+    for name, kind, description in (
+        ("evaluation_outliers.csv", "evaluation_review", "Best/worst evaluation sample table"),
+        ("evaluation_review.html", "html_review", "Best/worst evaluation image review"),
+    ):
+        path = run.run_dir / name
+        if path.exists():
+            _record_existing_artifact(run, path, kind, description)
     html_path = _write_html_report(run.run_dir, "microi2i evaluation report", report)
     run.artifacts.append(
         {

@@ -4,6 +4,7 @@
     {
       "model_id": "smoke_pix2pix_unet256",
       "display_name": "Smoke pix2pix U-Net 256",
+      "model_backend": "legacy_pix2pix",
       "model_family": "pix2pix",
       "task_type": "paired_translation",
       "framework": "pytorch",
@@ -25,6 +26,7 @@
     {
       "model_id": "smoke_cyclegan_resnet9",
       "display_name": "Smoke CycleGAN ResNet-9",
+      "model_backend": "legacy_cyclegan",
       "model_family": "cycle_gan",
       "task_type": "unpaired_translation",
       "framework": "pytorch",

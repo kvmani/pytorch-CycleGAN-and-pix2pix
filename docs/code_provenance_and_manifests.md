@@ -164,6 +164,8 @@ Evaluation reports use `microi2i.evaluation_report.v1` and must include per-samp
 aggregate metrics. Current aggregate fields include pixel fidelity, SSIM when available, edge/gradient
 metrics, histogram distance, contrast-to-noise proxy delta, high-frequency energy ratio, and Laplacian
 sharpness ratio.
+When paired samples are available, evaluation also writes `evaluation_outliers.csv` and
+`evaluation_review.html` to inspect best/worst samples by a configured ranking metric.
 
 ## Model Registry
 
@@ -183,6 +185,7 @@ Each model entry should include:
 - `scientific_use`
 - `limitations`
 - `status`
+- `model_backend`
 - optional `lifecycle_history`
 
 Allowed statuses are `smoke`, `candidate`, `promoted`, and `deprecated`.

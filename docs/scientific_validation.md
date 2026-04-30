@@ -57,6 +57,7 @@ Every evaluation run should emit:
 - Optional `report.html`
 - Per-sample metric table
 - Aggregate metric summary
+- Best/worst sample review panels when paired predictions and targets are available
 - Manifest references for dataset, model, and artifacts
 
 ## Current Implemented Metrics
