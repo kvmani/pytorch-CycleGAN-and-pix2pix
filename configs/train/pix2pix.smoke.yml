@@ -1,9 +1,12 @@
 schema_version: microi2i.train_config.v1
 workflow: pix2pix_smoke_training
+model_backend: legacy_pix2pix
 output_root: artifacts/runs
 dry_run: false
 runtime:
+  device: cpu
   gpu_ids: "-1"
+  require_cuda: false
   seed: 42
 training:
   legacy_script: train.py

@@ -14,9 +14,10 @@ from microi2i.dataops.dataset_prepare import prepare_dataset
 from microi2i.dataops.dataset_qa import run_dataset_qa
 from microi2i.dataops.smoke_data import create_smoke_datasets
 from microi2i.io.configuration import apply_overrides, load_config
-from microi2i.inference.legacy_runner import build_inference_command, package_prediction_images
+from microi2i.inference.legacy_runner import package_prediction_images
 from microi2i.manifests.reporting import finalize_run, start_run
 from microi2i.evaluation.image_translation import evaluate_paired_directories
+from microi2i.models.backends import get_model_backend, infer_backend_id
 from microi2i.plugins.registry import (
     compare_run_reports,
     load_model_registry,
@@ -25,7 +26,6 @@ from microi2i.plugins.registry import (
     validate_model_registry,
 )
 from microi2i.training.legacy_runner import (
-    build_training_command,
     build_training_preflight,
     package_training_outputs,
     write_training_metric_placeholders,
@@ -87,8 +87,10 @@ def _run_wrapped_workflow(args: argparse.Namespace, workflow: str) -> int:
     status = "success"
     exit_code = 0
     try:
+        backend = get_model_backend(infer_backend_id(config, workflow=workflow))
+        backend_metadata = backend.metadata()
         if workflow == "training":
-            command = build_training_command(config, repo_root=ROOT, resolved_config=cfg)
+            command = backend.train_command(config, repo_root=ROOT, resolved_config=cfg)
             preflight = build_training_preflight(
                 config,
                 repo_root=ROOT,
@@ -100,6 +102,7 @@ def _run_wrapped_workflow(args: argparse.Namespace, workflow: str) -> int:
             report = {
                 "schema_version": "microi2i.training_report.v1",
                 "status": "dry_run" if dry_run else training_status,
+                "model_backend": backend_metadata,
                 "preflight": preflight,
             }
             run.add_artifact("training_report.json", "training_report", "Training preflight and run report", report)
@@ -119,8 +122,13 @@ def _run_wrapped_workflow(args: argparse.Namespace, workflow: str) -> int:
                 print(str(run.run_dir))
                 return exit_code
         else:
-            command = build_inference_command(config, repo_root=ROOT)
-        run.add_artifact("command.json", "command", "Resolved legacy command", {"command": command})
+            command = backend.infer_command(config, repo_root=ROOT)
+        run.add_artifact(
+            "command.json",
+            "command",
+            "Resolved model backend command",
+            {"command": command, "model_backend": backend_metadata},
+        )
         if dry_run:
             run.add_artifact("dry_run.json", "dry_run", "Dry-run marker", {"skipped_command": command})
         else:
@@ -130,6 +138,13 @@ def _run_wrapped_workflow(args: argparse.Namespace, workflow: str) -> int:
         if workflow == "training":
             outputs = package_training_outputs(run.run_dir, preflight)
             run.add_artifact("training_outputs.json", "training_outputs", "Packaged training logs and panels", outputs)
+            for name, kind, description in (
+                ("loss_curves.csv", "loss_curves", "Tabular training loss curve data"),
+                ("loss_curves.svg", "loss_curves", "SVG training loss curve plot"),
+            ):
+                curve_path = run.run_dir / name
+                if curve_path.exists():
+                    _record_existing_artifact(run, curve_path, kind, description)
             panel_path = run.run_dir / "validation_samples.html"
             if panel_path.exists():
                 _record_existing_artifact(run, panel_path, "html_review", "Training validation sample panel")
@@ -145,6 +160,7 @@ def _run_wrapped_workflow(args: argparse.Namespace, workflow: str) -> int:
             report = {
                 "schema_version": "microi2i.inference_report.v1",
                 "status": "dry_run" if dry_run else status,
+                "model_backend": backend_metadata,
                 "command": command,
                 "packaged_predictions": packaged,
             }

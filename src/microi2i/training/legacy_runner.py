@@ -222,15 +222,19 @@ def write_training_summary_html(run_dir: Path, report: dict[str, Any]) -> Path:
     """Write a human-readable training preflight and summary document."""
 
     body = json.dumps(report, indent=2, sort_keys=True)
+    curve_link = ""
+    if (run_dir / "loss_curves.svg").exists():
+        curve_link = "<h2>Loss Curves</h2><img src='loss_curves.svg' alt='Training loss curves'>"
     path = run_dir / "training_summary.html"
     path.write_text(
         "<!doctype html><html><head><meta charset='utf-8'>"
         "<title>microi2i training summary</title>"
         "<style>body{font-family:Arial,sans-serif;margin:2rem;line-height:1.45}"
-        "pre{background:#f6f8fa;border-radius:10px;padding:1rem;overflow:auto}"
+        "pre{background:#f6f8fa;border-radius:10px;padding:1rem;overflow:auto}img{max-width:100%}"
         ".ok{color:#0f766e}.warn{color:#b45309}.fail{color:#b91c1c}</style></head>"
         "<body><h1>microi2i training summary</h1>"
         f"<p>Status: <strong>{report.get('status', 'unknown')}</strong></p>"
+        f"{curve_link}"
         f"<pre>{body}</pre></body></html>",
         encoding="utf-8",
     )
@@ -286,6 +290,72 @@ def write_structured_loss_logs(run_dir: Path, rows: list[dict[str, Any]]) -> lis
     return [csv_path, jsonl_path]
 
 
+def write_loss_curve_artifacts(run_dir: Path, rows: list[dict[str, Any]]) -> list[Path]:
+    """Write simple CSV/SVG loss-curve artifacts from structured loss rows."""
+
+    csv_path = run_dir / "loss_curves.csv"
+    svg_path = run_dir / "loss_curves.svg"
+    loss_keys = sorted(key for key in {key for row in rows for key in row} if key.startswith("loss_"))
+    with csv_path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.writer(handle)
+        writer.writerow(["step", *loss_keys])
+        for index, row in enumerate(rows):
+            writer.writerow([index, *[row.get(key, "") for key in loss_keys]])
+
+    if not rows or not loss_keys:
+        svg_path.write_text(
+            "<svg xmlns='http://www.w3.org/2000/svg' width='640' height='180'>"
+            "<text x='20' y='40' font-family='Arial' font-size='18'>No loss rows available</text></svg>",
+            encoding="utf-8",
+        )
+        return [csv_path, svg_path]
+
+    width, height = 720, 360
+    left, right, top, bottom = 60, 20, 30, 50
+    values = [float(row[key]) for row in rows for key in loss_keys if isinstance(row.get(key), int | float)]
+    min_value, max_value = min(values), max(values)
+    span = max(max_value - min_value, 1e-9)
+    max_step = max(len(rows) - 1, 1)
+    colors = ["#2563eb", "#dc2626", "#059669", "#9333ea", "#ea580c", "#0891b2"]
+
+    def point(step: int, value: float) -> tuple[float, float]:
+        x = left + ((width - left - right) * step / max_step)
+        y = top + ((height - top - bottom) * (max_value - value) / span)
+        return x, y
+
+    paths: list[str] = []
+    legend: list[str] = []
+    for key_index, key in enumerate(loss_keys):
+        coords = [
+            point(step, float(row[key]))
+            for step, row in enumerate(rows)
+            if isinstance(row.get(key), int | float)
+        ]
+        if not coords:
+            continue
+        d = " ".join(("M" if index == 0 else "L") + f"{x:.2f},{y:.2f}" for index, (x, y) in enumerate(coords))
+        color = colors[key_index % len(colors)]
+        paths.append(f"<path d='{d}' fill='none' stroke='{color}' stroke-width='2'/>")
+        legend.append(
+            f"<text x='{left + 10}' y='{height - 25 - (key_index * 18)}' font-family='Arial' font-size='12' fill='{color}'>{key}</text>"
+        )
+
+    svg_path.write_text(
+        "<svg xmlns='http://www.w3.org/2000/svg' width='720' height='360' viewBox='0 0 720 360'>"
+        "<rect width='720' height='360' fill='white'/>"
+        "<text x='60' y='22' font-family='Arial' font-size='18' fill='#111827'>Training Loss Curves</text>"
+        f"<line x1='{left}' y1='{height-bottom}' x2='{width-right}' y2='{height-bottom}' stroke='#374151'/>"
+        f"<line x1='{left}' y1='{top}' x2='{left}' y2='{height-bottom}' stroke='#374151'/>"
+        f"<text x='{left}' y='{height-12}' font-family='Arial' font-size='12'>step</text>"
+        f"<text x='10' y='{top+10}' font-family='Arial' font-size='12'>loss</text>"
+        + "".join(paths)
+        + "".join(legend)
+        + "</svg>",
+        encoding="utf-8",
+    )
+    return [csv_path, svg_path]
+
+
 def package_training_outputs(run_dir: Path, preflight: dict[str, Any]) -> dict[str, Any]:
     """Collect legacy training logs and visual samples into a normalized package."""
 
@@ -296,6 +366,7 @@ def package_training_outputs(run_dir: Path, preflight: dict[str, Any]) -> dict[s
     loss_log = experiment_dir / "loss_log.txt"
     rows = parse_legacy_loss_log(loss_log)
     write_structured_loss_logs(run_dir, rows)
+    curve_paths = write_loss_curve_artifacts(run_dir, rows)
 
     copied_images: list[dict[str, Any]] = []
     image_dir = experiment_dir / "web" / "images"
@@ -324,6 +395,7 @@ def package_training_outputs(run_dir: Path, preflight: dict[str, Any]) -> dict[s
         "experiment_dir": str(experiment_dir),
         "loss_log": str(loss_log),
         "loss_rows": len(rows),
+        "loss_curve_artifacts": [str(path) for path in curve_paths],
         "validation_sample_count": len(copied_images),
         "validation_samples": copied_images,
         "validation_samples_html": str(panel_path),

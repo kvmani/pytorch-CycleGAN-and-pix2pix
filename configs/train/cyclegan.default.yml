@@ -1,9 +1,12 @@
 schema_version: microi2i.train_config.v1
 workflow: cyclegan_training
+model_backend: legacy_cyclegan
 output_root: artifacts/runs
 dry_run: false
 runtime:
+  device: auto
   gpu_ids: "0"
+  require_cuda: false
   seed: 42
 training:
   legacy_script: train.py

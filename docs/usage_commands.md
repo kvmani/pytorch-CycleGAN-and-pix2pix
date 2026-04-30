@@ -66,11 +66,31 @@ The smoke training configs force CPU execution, one epoch, tiny image sizes, tin
 single-worker loading, and stable checkpoint output under `artifacts/smoke_checkpoints`.
 Remove `--dry-run` only when local dependencies are installed and the tiny smoke datasets exist.
 
+Run explicitly on CPU:
+
+```bash
+microi2i train --config configs/train/pix2pix.smoke.yml --set runtime.device=cpu
+```
+
+Run on a GPU server when CUDA is required:
+
+```bash
+microi2i train \
+  --config configs/train/pix2pix.default.yml \
+  --set runtime.device=cuda \
+  --set runtime.gpu_ids=0 \
+  --set runtime.require_cuda=true
+```
+
+If CUDA is requested but unavailable, MicroI2I fails before launching the legacy training script.
+
 After a real training run, MicroI2I parses legacy `loss_log.txt` into:
 
 ```text
 metrics_log.csv
 metrics_log.jsonl
+loss_curves.csv
+loss_curves.svg
 training_outputs.json
 validation_samples.html
 validation_samples/

@@ -66,6 +66,7 @@ glossary
 architecture
 usage_commands
 training_data_requirements
+model_backend_interface
 model_registry
 scientific_validation
 tutorials/01_prepare_paired_microscopy_dataset

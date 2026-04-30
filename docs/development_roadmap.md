@@ -66,6 +66,10 @@ loss-curve plots, and fully executable CPU smoke training in CI.
 - Add future adapters for CUT, Pix2PixHD, ESRGAN/Real-ESRGAN-style super-resolution, diffusion/one-step translation, and non-GAN restoration baselines.
 - Each backend requires config presets, docs, tests, registry support, and failure-mode notes.
 
+Current status: the CLI-only model execution adapter layer has begun with `legacy_pix2pix` and
+`legacy_cyclegan`. The next extensions should add native adapter tests, backend registry metadata,
+and then new research adapters such as CUT or restoration baselines.
+
 ## Phase 8: Teaching-Grade Documentation
 
 - Expand Sphinx docs into a full teaching site.

@@ -117,6 +117,19 @@ Required fields:
 When legacy training writes `loss_log.txt`, MicroI2I parses it into `metrics_log.csv` and
 `metrics_log.jsonl`. When generated sample images exist under the legacy `web/images` directory,
 MicroI2I copies a bounded panel into `validation_samples/` and writes `validation_samples.html`.
+Parsed loss logs also produce `loss_curves.csv` and `loss_curves.svg`.
+
+## Model Backend Metadata
+
+Training and inference reports must include `model_backend` metadata:
+
+- `schema_version`
+- `backend_id`
+- `display_name`
+- `model_family`
+- `execution`
+
+The current backend IDs are `legacy_pix2pix` and `legacy_cyclegan`.
 
 ## Smoke Dataset Manifest
 

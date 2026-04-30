@@ -11,6 +11,7 @@ from microi2i.training.legacy_runner import (
     package_training_outputs,
     parse_legacy_loss_log,
     parse_legacy_args,
+    write_loss_curve_artifacts,
 )
 
 
@@ -113,3 +114,19 @@ def test_parse_legacy_loss_log_and_package_training_outputs(tmp_path) -> None:
     assert outputs["validation_sample_count"] == 1
     assert (tmp_path / "run" / "metrics_log.csv").exists()
     assert (tmp_path / "run" / "validation_samples.html").exists()
+    assert (tmp_path / "run" / "loss_curves.csv").exists()
+    assert (tmp_path / "run" / "loss_curves.svg").exists()
+
+
+def test_loss_curve_artifacts_are_stable(tmp_path) -> None:
+    paths = write_loss_curve_artifacts(
+        tmp_path,
+        [
+            {"epoch": 1, "iteration": 1, "loss_G": 2.0, "loss_D": 1.0},
+            {"epoch": 1, "iteration": 2, "loss_G": 1.5, "loss_D": 0.8},
+        ],
+    )
+
+    assert [path.name for path in paths] == ["loss_curves.csv", "loss_curves.svg"]
+    assert "loss_D" in (tmp_path / "loss_curves.csv").read_text(encoding="utf-8")
+    assert "Training Loss Curves" in (tmp_path / "loss_curves.svg").read_text(encoding="utf-8")

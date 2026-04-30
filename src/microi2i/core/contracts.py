@@ -29,11 +29,21 @@ class RuntimeConfig:
 
     gpu_ids: str = "-1"
     seed: int = 42
+    device: str = "auto"
+    require_cuda: bool = False
 
     @classmethod
     def from_mapping(cls, payload: object) -> "RuntimeConfig":
         data = _as_dict(payload, field_name="runtime")
-        return cls(gpu_ids=str(data.get("gpu_ids", "-1")), seed=int(data.get("seed", 42)))
+        device = str(data.get("device", "auto")).lower()
+        if device not in {"auto", "cpu", "cuda"}:
+            raise ValueError("runtime.device must be one of: auto, cpu, cuda")
+        return cls(
+            gpu_ids=str(data.get("gpu_ids", "-1")),
+            seed=int(data.get("seed", 42)),
+            device=device,
+            require_cuda=bool(data.get("require_cuda", False)),
+        )
 
 
 @dataclass(frozen=True)
@@ -82,6 +92,7 @@ class ScriptWorkflowConfig:
     base: WorkflowConfig
     runtime: RuntimeConfig
     command: LegacyCommandConfig
+    model_backend: str = ""
 
     @classmethod
     def from_mapping(cls, payload: dict[str, Any], *, section: str) -> "ScriptWorkflowConfig":
@@ -89,6 +100,7 @@ class ScriptWorkflowConfig:
             base=WorkflowConfig.from_mapping(payload),
             runtime=RuntimeConfig.from_mapping(payload.get("runtime", {})),
             command=LegacyCommandConfig.from_mapping(payload.get(section, {}), field_name=section),
+            model_backend=str(payload.get("model_backend", "")).strip(),
         )
 
 

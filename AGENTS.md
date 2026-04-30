@@ -35,12 +35,14 @@ Legacy scripts and modules may be moved, renamed, or absorbed only after equival
 - Prefer package modules under `src/microi2i/` over monolithic top-level scripts.
 - Keep scripts thin; orchestration belongs in library modules.
 - Keep data preparation, training, inference, evaluation, manifests, and reporting separate.
+- Keep model backends as CLI/package execution adapters; do not introduce web services for model execution.
 - Use config files and command overrides instead of hardcoded machine paths.
 - Do not hardcode checkpoint paths, dataset roots, host names, or scientific constants without documenting them.
 - Public APIs must use type hints and clear NumPy- or Google-style docstrings.
 - Avoid import-time side effects in library modules.
 - New package code must be testable without requiring GPU hardware, internet access, or large datasets.
 - Heavy model execution belongs behind explicit smoke/integration gates, not import-time or default unit tests.
+- Every new model backend must include config presets, docs, tests, registry metadata expectations, failure modes, and smoke behavior when feasible.
 
 ## Scientific Provenance
 
