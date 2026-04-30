@@ -10,6 +10,7 @@ runtime:
 inference:
   legacy_script: run_kikuchi_inference.py
   expected_output_dir: artifacts/inference/kikuchi/kikuchi_model/test_latest/images
+  references_dir: ""
   legacy_args:
     - --input_folder
     - ./datasets/kikuchi_inference

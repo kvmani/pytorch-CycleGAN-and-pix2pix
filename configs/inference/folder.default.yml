@@ -10,6 +10,7 @@ runtime:
 inference:
   legacy_script: test.py
   expected_output_dir: ./results/microscopy_inference/test_latest/images
+  references_dir: ""
   inputs:
     mode: folder
     path: ./datasets/horse2zebra/testA

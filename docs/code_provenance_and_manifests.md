@@ -138,6 +138,8 @@ File: `inference_inputs.json`
 Inference input manifests use `microi2i.inference_inputs.v1` and record selected input samples before
 legacy inference launches. Supported modes are `legacy`, `single`, `folder`, and `manifest`.
 When `copy_to_run` is enabled, selected inputs are copied under the run folder for review.
+Inference packaging also writes `comparison_review.html` when `references_dir` contains same-named
+reference images.
 
 ## Smoke Dataset Manifest
 

@@ -47,6 +47,24 @@ def test_package_prediction_images_applies_postprocessing(tmp_path) -> None:
     assert output.name == "pred_00000.png"
 
 
+def test_package_prediction_images_writes_comparison_review_when_references_exist(tmp_path) -> None:
+    source = tmp_path / "legacy_results"
+    refs = tmp_path / "refs"
+    source.mkdir()
+    refs.mkdir()
+    Image.new("RGB", (10, 12), (10, 20, 30)).save(source / "sample.png")
+    Image.new("RGB", (10, 12), (30, 20, 10)).save(refs / "sample.png")
+    run_dir = tmp_path / "run"
+    run_dir.mkdir()
+
+    result = package_prediction_images(source, run_dir, references_dir=refs)
+
+    assert result["reference_count"] == 1
+    assert (run_dir / "comparison_review.html").exists()
+    summary = json.loads((run_dir / "batch_summary.json").read_text(encoding="utf-8"))
+    assert summary["predictions"][0]["has_reference"] is True
+
+
 def test_materialize_inference_inputs_supports_recursive_folder(tmp_path) -> None:
     source = tmp_path / "inputs"
     nested = source / "nested"

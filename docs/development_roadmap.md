@@ -44,8 +44,9 @@ loss-curve plots, and fully executable CPU smoke training in CI.
 - Preserve partial outputs and failure reports for interrupted runs.
 
 Current status: folder, single-image, recursive folder, and manifest input normalization now emit
-`inference_inputs.json`/`.csv` before legacy inference. Remaining work is direct legacy dataroot
-staging for non-dry runs and richer comparison panels against references.
+`inference_inputs.json`/`.csv` before legacy inference. Same-named references can be reviewed in
+`comparison_review.html`. Remaining work is direct legacy dataroot staging for non-dry runs and
+metric-aware best/worst review panels.
 
 ## Phase 5: Scientific Evaluation And Metrics
 

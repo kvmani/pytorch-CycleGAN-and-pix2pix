@@ -145,10 +145,12 @@ def package_prediction_images(
     run_dir: Path,
     *,
     postprocess: dict[str, Any] | None = None,
+    references_dir: str | Path | None = None,
 ) -> dict[str, object]:
     """Copy and summarize prediction images into a normalized run folder."""
 
     source = Path(source_dir)
+    references = Path(references_dir) if references_dir else None
     predictions_dir = run_dir / "predictions"
     postprocess = postprocess or {}
     rows: list[dict[str, Any]] = []
@@ -168,6 +170,13 @@ def package_prediction_images(
             target = predictions_dir / _target_name(relative, len(rows), postprocess)
             target.parent.mkdir(parents=True, exist_ok=True)
             row = _copy_or_postprocess_image(path, target, run_dir, postprocess)
+            reference = references / relative if references is not None else None
+            if reference is not None and reference.exists():
+                row["reference_path"] = str(reference)
+                row["has_reference"] = True
+            else:
+                row["reference_path"] = ""
+                row["has_reference"] = False
             rows.append(row)
     batch_summary = {
         "schema_version": "microi2i.inference_batch_summary.v1",
@@ -175,20 +184,24 @@ def package_prediction_images(
         "predictions_dir": str(predictions_dir),
         "prediction_count": len(rows),
         "postprocess": postprocess,
+        "references_dir": str(references) if references is not None else "",
         "predictions": rows,
     }
     (run_dir / "batch_summary.json").write_text(json.dumps(batch_summary, indent=2, sort_keys=True), encoding="utf-8")
     _write_batch_csv(rows, run_dir / "batch_summary.csv")
     review = _write_review_html(rows, run_dir / "review.html")
+    comparison = _write_comparison_html(rows, run_dir / "comparison_review.html")
     return {
         "status": "copied",
         "source_dir": str(source),
         "prediction_count": len(rows),
+        "reference_count": len([row for row in rows if row.get("has_reference")]),
         "predictions_dir": str(predictions_dir),
         "files": [row["run_relative_path"] for row in rows],
         "batch_summary_json": "batch_summary.json",
         "batch_summary_csv": "batch_summary.csv",
         "review_html": str(review.name),
+        "comparison_review_html": str(comparison.name),
     }
 
 
@@ -268,6 +281,35 @@ def _write_review_html(rows: list[dict[str, Any]], path: Path) -> Path:
         "<h1>MicroI2I Inference Review</h1>"
         f"<p>Images shown: {min(len(rows), 200)} of {len(rows)}</p>"
         f"<div class='grid'>{''.join(cards)}</div></body></html>",
+        encoding="utf-8",
+    )
+    return path
+
+
+def _write_comparison_html(rows: list[dict[str, Any]], path: Path) -> Path:
+    comparison_rows = [row for row in rows if row.get("has_reference")]
+    cards = []
+    for row in comparison_rows[:100]:
+        prediction_path = row["run_relative_path"].replace("\\", "/")
+        reference_path = Path(str(row["reference_path"])).as_posix()
+        cards.append(
+            "<section class='pair'>"
+            f"<h2>{row['filename']}</h2>"
+            "<div class='images'>"
+            f"<figure><img src='{prediction_path}' alt='prediction'><figcaption>Prediction</figcaption></figure>"
+            f"<figure><img src='file:///{reference_path}' alt='reference'><figcaption>Reference</figcaption></figure>"
+            "</div></section>"
+        )
+    path.write_text(
+        "<!doctype html><html><head><meta charset='utf-8'><title>MicroI2I Comparison Review</title>"
+        "<style>body{font-family:Segoe UI,Arial,sans-serif;margin:2rem;background:#f8fafc;color:#0f172a}"
+        ".pair{background:white;border:1px solid #cbd5e1;border-radius:12px;padding:1rem;margin-bottom:1rem}"
+        ".images{display:grid;grid-template-columns:1fr 1fr;gap:1rem}"
+        "img{width:100%;height:240px;object-fit:contain;background:#f1f5f9;border-radius:8px}"
+        "figcaption{text-align:center;font-weight:600}</style></head><body>"
+        "<h1>MicroI2I Prediction/Reference Review</h1>"
+        f"<p>Pairs shown: {min(len(comparison_rows), 100)} of {len(comparison_rows)}</p>"
+        f"{''.join(cards)}</body></html>",
         encoding="utf-8",
     )
     return path

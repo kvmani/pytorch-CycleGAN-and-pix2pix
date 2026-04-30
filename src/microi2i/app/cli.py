@@ -168,6 +168,7 @@ def _run_wrapped_workflow(args: argparse.Namespace, workflow: str) -> int:
                 config.command.expected_output_dir,
                 run.run_dir,
                 postprocess=inference_cfg.get("postprocess", {}),
+                references_dir=inference_cfg.get("references_dir", ""),
             )
             report = {
                 "schema_version": "microi2i.inference_report.v1",
@@ -182,6 +183,7 @@ def _run_wrapped_workflow(args: argparse.Namespace, workflow: str) -> int:
                 ("batch_summary.json", "batch_summary", "Per-image inference batch summary"),
                 ("batch_summary.csv", "batch_summary", "Per-image inference batch summary table"),
                 ("review.html", "html_review", "Human-readable inference image review"),
+                ("comparison_review.html", "html_review", "Prediction/reference comparison review"),
             ):
                 artifact_path = run.run_dir / name
                 if artifact_path.exists():

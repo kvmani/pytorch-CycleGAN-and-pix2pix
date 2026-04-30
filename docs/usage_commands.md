@@ -123,6 +123,7 @@ predictions/
 batch_summary.json
 batch_summary.csv
 review.html
+comparison_review.html
 ```
 
 Optional postprocessing can be configured under `inference.postprocess`:
@@ -153,6 +154,9 @@ Single-image and manifest-driven presets are also available:
 microi2i infer --config configs/inference/single_image.default.yml --dry-run
 microi2i infer --config configs/inference/manifest.default.yml --dry-run
 ```
+
+If `inference.references_dir` points to same-named reference images, `comparison_review.html` shows
+prediction/reference pairs for human scientific review.
 
 ## Prepare Paired Microscopy Dataset
 

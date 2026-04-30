@@ -10,6 +10,7 @@ runtime:
 inference:
   legacy_script: test.py
   expected_output_dir: ./results/microscopy_single/test_latest/images
+  references_dir: ""
   inputs:
     mode: single
     path: ./datasets/single_image/example.png

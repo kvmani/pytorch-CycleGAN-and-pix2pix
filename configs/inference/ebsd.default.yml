@@ -10,6 +10,7 @@ runtime:
 inference:
   legacy_script: run_ebsd_inference.py
   expected_output_dir: artifacts/inference/ebsd/test_latest/images
+  references_dir: ""
   legacy_args:
     - --input_folder
     - ./datasets/ebsd_inference
