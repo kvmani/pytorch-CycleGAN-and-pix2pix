@@ -1,2 +1,3 @@
 schema_version: microi2i.registry_validation_config.v1
 registry_path: frozen_checkpoints/model_registry.json
+overlay_path: ""

@@ -21,6 +21,7 @@ from microi2i.models.backends import get_model_backend, infer_backend_id
 from microi2i.plugins.registry import (
     compare_run_reports,
     load_model_registry,
+    load_model_registry_with_overlay,
     save_model_registry,
     update_model_status,
     validate_model_registry,
@@ -448,7 +449,7 @@ def cmd_evaluate(args: argparse.Namespace) -> int:
 
 def cmd_models(args: argparse.Namespace) -> int:
     registry_path = _repo_path(args.registry)
-    registry = load_model_registry(registry_path)
+    registry = load_model_registry_with_overlay(registry_path, _repo_path(args.overlay) if args.overlay else "")
     records = registry.get("models", [])
     if args.details:
         print(json.dumps(registry, indent=2, sort_keys=True))
@@ -461,7 +462,8 @@ def cmd_models(args: argparse.Namespace) -> int:
 def cmd_validate_registry(args: argparse.Namespace) -> int:
     cfg = apply_overrides(load_config(args.config), args.set_values or []) if args.config else {}
     registry_path = _repo_path(str(cfg.get("registry_path", args.registry)))
-    registry = load_model_registry(registry_path)
+    overlay_path = str(cfg.get("overlay_path", args.overlay or ""))
+    registry = load_model_registry_with_overlay(registry_path, _repo_path(overlay_path) if overlay_path else "")
     errors = validate_model_registry(registry)
     if errors:
         for error in errors:
@@ -562,12 +564,14 @@ def build_parser() -> argparse.ArgumentParser:
 
     models = sub.add_parser("models", help="List registered models")
     models.add_argument("--registry", default="frozen_checkpoints/model_registry.json")
+    models.add_argument("--overlay", default="")
     models.add_argument("--details", action="store_true")
     models.set_defaults(func=cmd_models)
 
     validate = sub.add_parser("validate-registry", help="Validate model registry metadata")
     validate.add_argument("--config", default="configs/registry_validation.default.yml")
     validate.add_argument("--registry", default="frozen_checkpoints/model_registry.json")
+    validate.add_argument("--overlay", default="")
     validate.add_argument("--set", dest="set_values", action="append", default=[])
     validate.set_defaults(func=cmd_validate_registry)
 

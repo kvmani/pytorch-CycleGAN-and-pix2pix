@@ -191,6 +191,8 @@ Each model entry should include:
 Allowed statuses are `smoke`, `candidate`, `promoted`, and `deprecated`.
 Promotion to `candidate` or `promoted` must be backed by a dataset manifest, evaluation report,
 documented limitations, and reviewable provenance.
+Machine-specific checkpoint paths should use ignored local overlay files named
+`frozen_checkpoints/model_registry.local*.json`.
 
 ## Schema Versions
 

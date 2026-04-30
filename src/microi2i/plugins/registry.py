@@ -36,6 +36,45 @@ def load_model_registry(path: str | Path) -> dict[str, Any]:
     return payload
 
 
+def merge_local_registry_overlay(registry: dict[str, Any], overlay: dict[str, Any]) -> dict[str, Any]:
+    """Merge machine-local registry metadata by model_id without mutating the base registry."""
+
+    merged = deepcopy(registry)
+    overlay_models = overlay.get("models", [])
+    if not isinstance(overlay_models, list):
+        raise ValueError("overlay.models must be a list")
+    base_models = merged.get("models", [])
+    if not isinstance(base_models, list):
+        raise ValueError("registry.models must be a list")
+    by_id = {record.get("model_id"): record for record in base_models if isinstance(record, dict)}
+    for overlay_record in overlay_models:
+        if not isinstance(overlay_record, dict):
+            raise ValueError("overlay model records must be objects")
+        model_id = overlay_record.get("model_id")
+        if model_id not in by_id:
+            raise KeyError(f"overlay references unknown model_id: {model_id}")
+        target = by_id[model_id]
+        local = target.setdefault("local_overlay", {})
+        if not isinstance(local, dict):
+            local = {}
+            target["local_overlay"] = local
+        local.update({key: value for key, value in overlay_record.items() if key != "model_id"})
+    return merged
+
+
+def load_model_registry_with_overlay(path: str | Path, overlay_path: str | Path = "") -> dict[str, Any]:
+    """Load base registry and optionally merge a git-ignored local overlay."""
+
+    registry = load_model_registry(path)
+    if not overlay_path:
+        return registry
+    overlay_file = Path(overlay_path)
+    if not overlay_file.exists():
+        return registry
+    overlay = load_model_registry(overlay_file)
+    return merge_local_registry_overlay(registry, overlay)
+
+
 def save_model_registry(registry: dict[str, Any], path: str | Path) -> None:
     Path(path).write_text(json.dumps(registry, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 

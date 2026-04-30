@@ -81,6 +81,7 @@ docs/*_files/
 # Keep model metadata and checkpoint lifecycle placeholders trackable
 !frozen_checkpoints/model_registry.json
 !frozen_checkpoints/**/.gitkeep
+frozen_checkpoints/model_registry.local*.json
 frozen_checkpoints/**/*.pt
 frozen_checkpoints/**/*.pth
 frozen_checkpoints/**/*.ckpt

@@ -8,6 +8,12 @@ These are the canonical commands for the restructured repository.
 microi2i models --details
 ```
 
+With local machine-specific checkpoint overlay:
+
+```bash
+microi2i models --overlay frozen_checkpoints/model_registry.local.json --details
+```
+
 ## Validate Model Registry
 
 ```bash

@@ -6,6 +6,7 @@ from microi2i.app.cli import main
 from microi2i.plugins.registry import (
     compare_run_reports,
     load_model_registry,
+    merge_local_registry_overlay,
     update_model_status,
     validate_model_registry,
 )
@@ -79,3 +80,24 @@ def test_cli_promote_model_dry_run_does_not_modify_registry() -> None:
     )
 
     assert exit_code == 0
+
+
+def test_local_registry_overlay_adds_machine_specific_metadata() -> None:
+    registry = load_model_registry("frozen_checkpoints/model_registry.json")
+
+    merged = merge_local_registry_overlay(
+        registry,
+        {
+            "schema_version": "microi2i.model_registry.v1",
+            "models": [
+                {
+                    "model_id": "smoke_pix2pix_unet256",
+                    "checkpoint_path": "D:/models/latest_net_G.pth",
+                }
+            ],
+        },
+    )
+
+    record = next(item for item in merged["models"] if item["model_id"] == "smoke_pix2pix_unet256")
+    assert record["local_overlay"]["checkpoint_path"] == "D:/models/latest_net_G.pth"
+    assert "local_overlay" not in registry["models"][0]
