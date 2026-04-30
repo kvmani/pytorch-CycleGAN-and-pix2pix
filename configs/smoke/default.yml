@@ -1,0 +1,12 @@
+schema_version: microi2i.smoke_data_config.v1
+output_root: artifacts/runs
+dry_run: false
+smoke_dataset:
+  output_dir: artifacts/smoke_datasets
+  image_size: 32
+  sample_count: 4
+  seed: 42
+  include_pix2pix: true
+  include_cyclegan: true
+notes:
+  purpose: Tiny deterministic datasets for CPU-safe smoke train/infer workflow checks.

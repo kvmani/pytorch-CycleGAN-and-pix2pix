@@ -199,3 +199,35 @@ class DatasetQAConfig:
             metadata=_as_dict(payload.get("metadata", {}), field_name="metadata"),
             contact_sheet=_as_dict(payload.get("contact_sheet", {}), field_name="contact_sheet"),
         )
+
+
+@dataclass(frozen=True)
+class SmokeDatasetConfig:
+    """Configuration for creating tiny deterministic smoke datasets."""
+
+    base: WorkflowConfig
+    output_dir: str
+    image_size: int
+    sample_count: int
+    seed: int
+    include_pix2pix: bool
+    include_cyclegan: bool
+
+    @classmethod
+    def from_mapping(cls, payload: dict[str, Any]) -> "SmokeDatasetConfig":
+        data = _as_dict(payload.get("smoke_dataset", {}), field_name="smoke_dataset")
+        image_size = int(data.get("image_size", 32))
+        sample_count = int(data.get("sample_count", 4))
+        if image_size <= 0:
+            raise ValueError("smoke_dataset.image_size must be positive")
+        if sample_count <= 0:
+            raise ValueError("smoke_dataset.sample_count must be positive")
+        return cls(
+            base=WorkflowConfig.from_mapping(payload),
+            output_dir=str(data.get("output_dir", Path("artifacts") / "smoke_datasets")),
+            image_size=image_size,
+            sample_count=sample_count,
+            seed=int(data.get("seed", 42)),
+            include_pix2pix=bool(data.get("include_pix2pix", True)),
+            include_cyclegan=bool(data.get("include_cyclegan", True)),
+        )

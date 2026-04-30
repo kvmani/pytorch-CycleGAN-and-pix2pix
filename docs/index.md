@@ -73,6 +73,8 @@ tutorials/02_train_and_infer_pix2pix
 tutorials/03_train_and_infer_cyclegan
 tutorials/04_dataset_qa_before_training
 tutorials/05_inference_batch_review
+tutorials/06_smoke_workflows
+tutorials/07_ebsd_kikuchi_domain_wrappers
 ```
 
 ```{toctree}

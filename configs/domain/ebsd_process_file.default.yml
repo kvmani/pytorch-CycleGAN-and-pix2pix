@@ -1,0 +1,21 @@
+schema_version: microi2i.domain_workflow_config.v1
+workflow: ebsd_process_file
+domain_name: ebsd
+task: process_single_ang_or_ctf_file
+output_root: artifacts/runs
+dry_run: true
+parameters:
+  input_file: ./datasets/ebsd/raw/example.ang
+  output_dir: artifacts/domain/ebsd/processed
+  debug: true
+  force_reduce_euler_angles: false
+domain:
+  legacy_script: EBSD/process_EBSD_data/process_ebsd_file.py
+  legacy_args:
+    - --input_file
+    - ./datasets/ebsd/raw/example.ang
+    - --output_dir
+    - artifacts/domain/ebsd/processed
+    - --debug
+notes:
+  purpose: Explicit EBSD single-file processing wrapper. Override input_file/output_dir before execution.

@@ -100,6 +100,39 @@ script and dataset path checks, runtime settings, warnings, and errors. Training
 include `metrics_log.csv`, `metrics_log.jsonl`, and `training_summary.html` even when legacy internals
 are still responsible for the actual optimization loop.
 
+## Training Outputs
+
+File: `training_outputs.json`
+
+Required fields:
+
+- `schema_version`
+- `experiment_dir`
+- `loss_log`
+- `loss_rows`
+- `validation_sample_count`
+- `validation_samples`
+- `validation_samples_html`
+
+When legacy training writes `loss_log.txt`, MicroI2I parses it into `metrics_log.csv` and
+`metrics_log.jsonl`. When generated sample images exist under the legacy `web/images` directory,
+MicroI2I copies a bounded panel into `validation_samples/` and writes `validation_samples.html`.
+
+## Smoke Dataset Manifest
+
+File: `smoke_dataset_manifest.json`
+
+Smoke datasets are deterministic tiny datasets intended for CPU-safe plumbing checks.
+The manifest records output roots, image size, sample count, seed, dataset layouts, and generated samples.
+
+## Domain Workflow Report
+
+File: `report.json`
+
+EBSD/Kikuchi domain wrappers use `microi2i.domain_workflow_report.v1` and record the domain,
+task, explicit parameters, resolved legacy command, and script path. Domain configs must default to
+`dry_run: true` unless they operate only on generated smoke data.
+
 ## Evaluation Report
 
 File: `report.json`

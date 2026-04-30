@@ -37,11 +37,32 @@ def apply_overrides(config: dict[str, Any], overrides: list[str]) -> dict[str, A
         parts = [part for part in key.split(".") if part]
         if not parts:
             raise ValueError(f"Override key cannot be empty: {override!r}")
-        cursor: dict[str, Any] = result
+        cursor: Any = result
         for part in parts[:-1]:
-            next_value = cursor.setdefault(part, {})
-            if not isinstance(next_value, dict):
-                raise ValueError(f"Cannot set nested override under non-mapping key: {part}")
+            if isinstance(cursor, list):
+                if not part.isdigit():
+                    raise ValueError(f"List override segment must be numeric: {part}")
+                index = int(part)
+                if index >= len(cursor):
+                    raise ValueError(f"List override index out of range: {part}")
+                next_value = cursor[index]
+            elif isinstance(cursor, dict):
+                next_value = cursor.setdefault(part, {})
+            else:
+                raise ValueError(f"Cannot set nested override under scalar key: {part}")
+            if not isinstance(next_value, dict | list):
+                raise ValueError(f"Cannot set nested override under non-container key: {part}")
             cursor = next_value
-        cursor[parts[-1]] = _coerce_value(raw_value)
+        final = parts[-1]
+        if isinstance(cursor, list):
+            if not final.isdigit():
+                raise ValueError(f"List override segment must be numeric: {final}")
+            index = int(final)
+            if index >= len(cursor):
+                raise ValueError(f"List override index out of range: {final}")
+            cursor[index] = _coerce_value(raw_value)
+        elif isinstance(cursor, dict):
+            cursor[final] = _coerce_value(raw_value)
+        else:
+            raise ValueError(f"Cannot set override under scalar key: {final}")
     return result

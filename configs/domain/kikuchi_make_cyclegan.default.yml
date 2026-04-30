@@ -1,0 +1,33 @@
+schema_version: microi2i.domain_workflow_config.v1
+workflow: kikuchi_make_cyclegan
+domain_name: kikuchi
+task: distribute_kikuchi_images_for_cyclegan
+output_root: artifacts/runs
+dry_run: true
+parameters:
+  input_folder: ./datasets/kikuchi/domain_b
+  output_folder: artifacts/domain/kikuchi/cyclegan
+  dataSetString: B
+  resize: 256
+  circular_mask: true
+  fraction: 0.35
+  num_workers: 4
+domain:
+  legacy_script: kikuchi/makeCycleGanData.py
+  legacy_args:
+    - --input_folder
+    - ./datasets/kikuchi/domain_b
+    - --output_folder
+    - artifacts/domain/kikuchi/cyclegan
+    - --dataSetString
+    - B
+    - --resize
+    - "256"
+    - --circular_mask
+    - "True"
+    - --fraction
+    - "0.35"
+    - --num_workers
+    - "4"
+notes:
+  purpose: Explicit Kikuchi CycleGAN folder distribution wrapper.

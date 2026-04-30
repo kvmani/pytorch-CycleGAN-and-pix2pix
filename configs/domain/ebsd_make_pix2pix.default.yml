@@ -1,0 +1,21 @@
+schema_version: microi2i.domain_workflow_config.v1
+workflow: ebsd_make_pix2pix
+domain_name: ebsd
+task: create_paired_pix2pix_ebsd_training_data
+output_root: artifacts/runs
+dry_run: true
+parameters:
+  input_file: ./datasets/ebsd/raw/example.ang
+  output_dir: artifacts/domain/ebsd/pix2pix
+  debug: true
+  force_reduce_euler_angles: false
+domain:
+  legacy_script: EBSD/process_EBSD_data/make_pix2pix_data.py
+  legacy_args:
+    - --input_file
+    - ./datasets/ebsd/raw/example.ang
+    - --output_dir
+    - artifacts/domain/ebsd/pix2pix
+    - --debug
+notes:
+  purpose: Explicit EBSD pix2pix data-generation wrapper. Override paths before execution.

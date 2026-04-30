@@ -1,0 +1,33 @@
+schema_version: microi2i.domain_workflow_config.v1
+workflow: ebsd_make_cyclegan
+domain_name: ebsd
+task: distribute_ebsd_images_for_cyclegan
+output_root: artifacts/runs
+dry_run: true
+parameters:
+  input_folder: ./datasets/ebsd/images/domain_b
+  output_folder: artifacts/domain/ebsd/cyclegan
+  dataSetString: B
+  resize: 256
+  circular_mask: false
+  fraction: 1.0
+  num_workers: 4
+domain:
+  legacy_script: EBSD/process_EBSD_data/makeCycleGanData.py
+  legacy_args:
+    - --input_folder
+    - ./datasets/ebsd/images/domain_b
+    - --output_folder
+    - artifacts/domain/ebsd/cyclegan
+    - --dataSetString
+    - B
+    - --resize
+    - "256"
+    - --circular_mask
+    - "False"
+    - --fraction
+    - "1.0"
+    - --num_workers
+    - "4"
+notes:
+  purpose: Explicit EBSD CycleGAN folder distribution wrapper.

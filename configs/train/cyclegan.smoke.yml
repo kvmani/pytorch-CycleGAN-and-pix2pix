@@ -1,0 +1,31 @@
+schema_version: microi2i.train_config.v1
+workflow: cyclegan_smoke_training
+output_root: artifacts/runs
+dry_run: false
+runtime:
+  gpu_ids: "-1"
+  seed: 42
+training:
+  legacy_script: train.py
+  dataset_manifest_path: artifacts/smoke_datasets/smoke_dataset_manifest.json
+  smoke:
+    enabled: true
+    cpu_only: true
+    max_epochs: 1
+    max_dataset_size: 2
+    image_size: 32
+    disable_html: true
+    checkpoints_dir: artifacts/smoke_checkpoints
+  legacy_args:
+    - --dataroot
+    - artifacts/smoke_datasets/cyclegan
+    - --name
+    - microi2i_cyclegan_smoke
+    - --model
+    - cycle_gan
+    - --dataset_mode
+    - unaligned
+    - --gpu_ids
+    - "-1"
+notes:
+  purpose: CPU-safe CycleGAN smoke config. Run create-smoke-data first.

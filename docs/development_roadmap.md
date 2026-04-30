@@ -30,6 +30,10 @@ This roadmap moves MicroI2I beyond feature parity with the original CycleGAN/pix
 - Produce HTML training summaries with loss curves and generated image panels.
 - Add presets for pix2pix microscopy, CycleGAN microscopy, EBSD/Kikuchi denoising, super-resolution, and noise cancellation.
 
+Current status: smoke dataset generation, smoke-aware command construction, structured legacy loss
+parsing, and validation sample packaging are implemented. Remaining work is live loss streaming,
+loss-curve plots, and fully executable CPU smoke training in CI.
+
 ## Phase 4: Inference And Batch Review
 
 - Support single image, folder, recursive folder, and manifest-driven inference.

@@ -47,6 +47,35 @@ dataset manifest warnings, runtime metadata, and launch-blocking errors.
 microi2i train --config configs/train/cyclegan.default.yml
 ```
 
+## Create Smoke Data And Run CPU-Safe Smoke Training
+
+Create tiny deterministic pix2pix and CycleGAN datasets:
+
+```bash
+microi2i create-smoke-data --config configs/smoke/default.yml
+```
+
+Dry-run the smoke training commands:
+
+```bash
+microi2i train --config configs/train/pix2pix.smoke.yml --dry-run
+microi2i train --config configs/train/cyclegan.smoke.yml --dry-run
+```
+
+The smoke training configs force CPU execution, one epoch, tiny image sizes, tiny dataset limits,
+single-worker loading, and stable checkpoint output under `artifacts/smoke_checkpoints`.
+Remove `--dry-run` only when local dependencies are installed and the tiny smoke datasets exist.
+
+After a real training run, MicroI2I parses legacy `loss_log.txt` into:
+
+```text
+metrics_log.csv
+metrics_log.jsonl
+training_outputs.json
+validation_samples.html
+validation_samples/
+```
+
 ## Folder Inference
 
 ```bash
@@ -124,6 +153,30 @@ artifacts/dataset_qa/<dataset_id>/
 ```
 
 The `microi2i` run folder also receives copies of the QA report and contact sheet for provenance.
+
+## EBSD And Kikuchi Domain Workflows
+
+Domain wrappers expose legacy EBSD/Kikuchi scripts with explicit config parameters and provenance.
+They are dry-run by default:
+
+```bash
+microi2i run-domain --config configs/domain/ebsd_process_file.default.yml
+microi2i run-domain --config configs/domain/ebsd_make_pix2pix.default.yml
+microi2i run-domain --config configs/domain/ebsd_make_cyclegan.default.yml
+microi2i run-domain --config configs/domain/kikuchi_make_cyclegan.default.yml
+```
+
+Override paths before execution:
+
+```bash
+microi2i run-domain \
+  --config configs/domain/ebsd_make_cyclegan.default.yml \
+  --set dry_run=false \
+  --set domain.legacy_args.1=C:/data/ebsd/domain_b \
+  --set domain.legacy_args.3=artifacts/domain/ebsd/cyclegan
+```
+
+Every domain run emits `command.json`, `report.json`, `run_manifest.json`, and `artifact_manifest.json`.
 
 Expected source layout:
 

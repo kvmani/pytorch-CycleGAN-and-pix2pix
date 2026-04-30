@@ -9,9 +9,10 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from microi2i.core.contracts import DatasetPrepareConfig, DatasetQAConfig, ScriptWorkflowConfig
+from microi2i.core.contracts import DatasetPrepareConfig, DatasetQAConfig, ScriptWorkflowConfig, SmokeDatasetConfig
 from microi2i.dataops.dataset_prepare import prepare_dataset
 from microi2i.dataops.dataset_qa import run_dataset_qa
+from microi2i.dataops.smoke_data import create_smoke_datasets
 from microi2i.io.configuration import apply_overrides, load_config
 from microi2i.inference.legacy_runner import build_inference_command, package_prediction_images
 from microi2i.manifests.reporting import finalize_run, start_run
@@ -26,6 +27,7 @@ from microi2i.plugins.registry import (
 from microi2i.training.legacy_runner import (
     build_training_command,
     build_training_preflight,
+    package_training_outputs,
     write_training_metric_placeholders,
     write_training_summary_html,
 )
@@ -86,7 +88,7 @@ def _run_wrapped_workflow(args: argparse.Namespace, workflow: str) -> int:
     exit_code = 0
     try:
         if workflow == "training":
-            command = build_training_command(config, repo_root=ROOT)
+            command = build_training_command(config, repo_root=ROOT, resolved_config=cfg)
             preflight = build_training_preflight(
                 config,
                 repo_root=ROOT,
@@ -125,6 +127,12 @@ def _run_wrapped_workflow(args: argparse.Namespace, workflow: str) -> int:
             exit_code = _run_subprocess(command, cwd=ROOT)
             if exit_code != 0:
                 status = "failed"
+        if workflow == "training":
+            outputs = package_training_outputs(run.run_dir, preflight)
+            run.add_artifact("training_outputs.json", "training_outputs", "Packaged training logs and panels", outputs)
+            panel_path = run.run_dir / "validation_samples.html"
+            if panel_path.exists():
+                _record_existing_artifact(run, panel_path, "html_review", "Training validation sample panel")
         if workflow == "inference":
             inference_cfg = cfg.get("inference", {})
             if not isinstance(inference_cfg, dict):
@@ -264,6 +272,86 @@ def cmd_data_qa(args: argparse.Namespace) -> int:
         status = "failed"
         exit_code = 1
         run.add_artifact("error_report.json", "error", "Dataset QA error", {"error": str(exc)})
+    finalize_run(run, status=status, exit_code=exit_code)
+    print(str(run.run_dir))
+    return exit_code
+
+
+def cmd_create_smoke_data(args: argparse.Namespace) -> int:
+    cfg = apply_overrides(load_config(args.config), args.set_values or [])
+    config = SmokeDatasetConfig.from_mapping(cfg)
+    run = start_run(
+        workflow="create_smoke_data",
+        config_path=args.config,
+        resolved_config=cfg,
+        output_root=_repo_path(config.base.output_root),
+        command=sys.argv,
+    )
+    status = "success"
+    exit_code = 0
+    try:
+        if bool(config.base.dry_run or args.dry_run):
+            report = {
+                "schema_version": "microi2i.smoke_dataset_manifest.v1",
+                "dry_run": True,
+                "output_dir": config.output_dir,
+                "image_size": config.image_size,
+                "sample_count": config.sample_count,
+            }
+        else:
+            report = create_smoke_datasets(config, repo_root=ROOT)
+        run.add_artifact("smoke_dataset_manifest.json", "smoke_dataset_manifest", "Tiny smoke dataset manifest", report)
+    except Exception as exc:
+        status = "failed"
+        exit_code = 1
+        run.add_artifact("error_report.json", "error", "Smoke data generation error", {"error": str(exc)})
+    finalize_run(run, status=status, exit_code=exit_code)
+    print(str(run.run_dir))
+    return exit_code
+
+
+def cmd_run_domain(args: argparse.Namespace) -> int:
+    cfg = apply_overrides(load_config(args.config), args.set_values or [])
+    config = ScriptWorkflowConfig.from_mapping(cfg, section="domain")
+    run = start_run(
+        workflow="domain",
+        config_path=args.config,
+        resolved_config=cfg,
+        output_root=_repo_path(config.base.output_root),
+        command=sys.argv,
+    )
+    dry_run = bool(config.base.dry_run or args.dry_run)
+    status = "success"
+    exit_code = 0
+    try:
+        script = _repo_path(config.command.legacy_script)
+        command = [sys.executable, str(script), *config.command.legacy_args]
+        report = {
+            "schema_version": "microi2i.domain_workflow_report.v1",
+            "status": "dry_run" if dry_run else "launched",
+            "domain": cfg.get("domain_name", ""),
+            "task": cfg.get("task", ""),
+            "command": command,
+            "parameters": cfg.get("parameters", {}),
+            "legacy_script": str(script),
+        }
+        run.add_artifact("command.json", "command", "Resolved domain legacy command", {"command": command})
+        if dry_run:
+            run.add_artifact("dry_run.json", "dry_run", "Dry-run marker", {"skipped_command": command})
+        else:
+            if not script.exists():
+                raise FileNotFoundError(f"domain script does not exist: {script}")
+            exit_code = _run_subprocess(command, cwd=ROOT)
+            if exit_code != 0:
+                status = "failed"
+                report["status"] = "failed"
+        run.add_artifact("report.json", "report", "Domain workflow report", report)
+        html_path = _write_html_report(run.run_dir, "microi2i domain workflow report", report)
+        _record_existing_artifact(run, html_path, "html_report", "Human-readable domain workflow report")
+    except Exception as exc:
+        status = "failed"
+        exit_code = 1
+        run.add_artifact("error_report.json", "error", "Domain workflow error", {"error": str(exc)})
     finalize_run(run, status=status, exit_code=exit_code)
     print(str(run.run_dir))
     return exit_code
@@ -409,6 +497,14 @@ def build_parser() -> argparse.ArgumentParser:
     data_qa = sub.add_parser("data-qa", help="Run dataset quality assurance")
     add_config_flags(data_qa)
     data_qa.set_defaults(func=cmd_data_qa)
+
+    smoke_data = sub.add_parser("create-smoke-data", help="Create tiny deterministic pix2pix/CycleGAN smoke datasets")
+    add_config_flags(smoke_data)
+    smoke_data.set_defaults(func=cmd_create_smoke_data)
+
+    domain = sub.add_parser("run-domain", help="Run a configured EBSD/Kikuchi domain workflow")
+    add_config_flags(domain)
+    domain.set_defaults(func=cmd_run_domain)
 
     evaluate = sub.add_parser("evaluate", help="Run evaluation or emit evaluation report metadata")
     add_config_flags(evaluate)
