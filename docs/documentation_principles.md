@@ -1,6 +1,7 @@
 # Documentation Principles
 
 This repository treats documentation as part of the scientific product.
+Documentation is also part of the testable production surface: substantial code changes must update the Sphinx site and keep the HTML build green.
 
 ## Required Documentation Rules
 
@@ -18,6 +19,9 @@ This repository treats documentation as part of the scientific product.
 12. Workflow, code architecture, and model architecture pages should include professional SVG diagrams with coherent color schemes, rounded boxes, gradients, and readable typography.
 13. New metrics must include formulas, symbol definitions, interpretation, and limitations.
 14. New model families must include architecture diagrams or schematics, citations, assumptions, and failure modes.
+15. New workflows must document expected inputs, exact commands, generated artifacts, and failure modes.
+16. New dataset formats must document layout, metadata fields, leakage risks, and QA checks.
+17. Documentation-only changes that alter navigation must update `docs/index.md`.
 
 ## Documentation Layers
 
@@ -64,3 +68,13 @@ The docs should remain useful as:
 - a developer guide,
 - a scientific audit trail,
 - and a teaching text for GAN-based microscopy image translation.
+
+## Documentation Gate
+
+The following command must pass before handoff for any substantial docs or behavior change:
+
+```bash
+python scripts/build_docs.py --html-only
+```
+
+Known warnings from inherited legacy upstream docs may be tolerated temporarily, but new pages should not introduce avoidable heading, link, or toctree warnings.

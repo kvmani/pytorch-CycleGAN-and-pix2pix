@@ -11,8 +11,13 @@ split_policy:
   test_ratio: 0.1
   seed: 42
 preprocessing:
-  image_size: 256
   color_mode: rgb
+  resize: [256, 256]
+  center_crop: null
+  random_crop: null
+  pad_to: null
+  letterbox: null
+  fill: 0
   paired_storage: concatenated_ab
 leakage_group_policy:
   mode: folder_or_specimen_id

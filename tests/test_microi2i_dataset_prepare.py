@@ -61,3 +61,28 @@ def test_prepare_unpaired_dataset_materializes_cyclegan_layout(tmp_path) -> None
     assert sum(count for name, count in manifest["sample_counts"].items() if name.endswith("B")) == 4
     assert (output / "trainA").exists()
     assert (output / "trainB").exists()
+
+
+def test_prepare_dataset_applies_preprocessing_policy(tmp_path) -> None:
+    source = tmp_path / "source"
+    _write_image(source / "specimen_1" / "pair.png")
+    output = tmp_path / "prepared"
+    cfg = DatasetPrepareConfig.from_mapping(
+        {
+            "schema_version": "microi2i.dataset_prepare_config.v1",
+            "dataset_id": "preprocess_test",
+            "task_type": "paired_translation",
+            "source_roots": [str(source)],
+            "output_dataset_dir": str(output),
+            "split_policy": {"train_ratio": 1.0, "val_ratio": 0.0, "test_ratio": 0.0, "seed": 7},
+            "preprocessing": {"center_crop": [6, 6], "resize": [4, 4], "color_mode": "grayscale"},
+            "leakage_group_policy": {"mode": "parent", "required": True},
+        }
+    )
+
+    manifest = prepare_dataset(cfg, repo_root=tmp_path)
+    prepared = Image.open(output / "train" / "specimen_1" / "pair.png")
+
+    assert prepared.size == (4, 4)
+    assert prepared.mode == "L"
+    assert manifest["copied_files"]["train"][0]["global_id"]

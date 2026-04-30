@@ -9,14 +9,26 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from microi2i.core.contracts import DatasetPrepareConfig, ScriptWorkflowConfig
+from microi2i.core.contracts import DatasetPrepareConfig, DatasetQAConfig, ScriptWorkflowConfig
 from microi2i.dataops.dataset_prepare import prepare_dataset
+from microi2i.dataops.dataset_qa import run_dataset_qa
 from microi2i.io.configuration import apply_overrides, load_config
 from microi2i.inference.legacy_runner import build_inference_command, package_prediction_images
 from microi2i.manifests.reporting import finalize_run, start_run
 from microi2i.evaluation.image_translation import evaluate_paired_directories
-from microi2i.plugins.registry import load_model_registry, validate_model_registry
-from microi2i.training.legacy_runner import build_training_command
+from microi2i.plugins.registry import (
+    compare_run_reports,
+    load_model_registry,
+    save_model_registry,
+    update_model_status,
+    validate_model_registry,
+)
+from microi2i.training.legacy_runner import (
+    build_training_command,
+    build_training_preflight,
+    write_training_metric_placeholders,
+    write_training_summary_html,
+)
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -45,6 +57,19 @@ def _write_html_report(run_dir: Path, title: str, payload: dict[str, Any]) -> Pa
     return path
 
 
+def _record_existing_artifact(run: Any, path: Path, kind: str, description: str) -> None:
+    run.artifacts.append(
+        {
+            "path": path.relative_to(run.run_dir).as_posix() if path.is_relative_to(run.run_dir) else path.name,
+            "kind": kind,
+            "description": description,
+            "exists": path.exists(),
+            "size_bytes": path.stat().st_size if path.exists() else 0,
+            "sha256": "",
+        }
+    )
+
+
 def _run_wrapped_workflow(args: argparse.Namespace, workflow: str) -> int:
     cfg = apply_overrides(load_config(args.config), args.set_values or [])
     section = "training" if workflow == "training" else "inference"
@@ -62,6 +87,35 @@ def _run_wrapped_workflow(args: argparse.Namespace, workflow: str) -> int:
     try:
         if workflow == "training":
             command = build_training_command(config, repo_root=ROOT)
+            preflight = build_training_preflight(
+                config,
+                repo_root=ROOT,
+                resolved_config=cfg,
+                command=command,
+                dry_run=dry_run,
+            )
+            training_status = "ready" if not preflight["errors"] else "blocked"
+            report = {
+                "schema_version": "microi2i.training_report.v1",
+                "status": "dry_run" if dry_run else training_status,
+                "preflight": preflight,
+            }
+            run.add_artifact("training_report.json", "training_report", "Training preflight and run report", report)
+            for path in write_training_metric_placeholders(run.run_dir):
+                _record_existing_artifact(
+                    run,
+                    path,
+                    "metrics_log",
+                    "Structured training metrics log placeholder",
+                )
+            html_path = write_training_summary_html(run.run_dir, report)
+            _record_existing_artifact(run, html_path, "html_report", "Human-readable training summary")
+            if preflight["errors"] and not dry_run:
+                status = "failed"
+                exit_code = 1
+                finalize_run(run, status=status, exit_code=exit_code)
+                print(str(run.run_dir))
+                return exit_code
         else:
             command = build_inference_command(config, repo_root=ROOT)
         run.add_artifact("command.json", "command", "Resolved legacy command", {"command": command})
@@ -72,7 +126,14 @@ def _run_wrapped_workflow(args: argparse.Namespace, workflow: str) -> int:
             if exit_code != 0:
                 status = "failed"
         if workflow == "inference":
-            packaged = package_prediction_images(config.command.expected_output_dir, run.run_dir)
+            inference_cfg = cfg.get("inference", {})
+            if not isinstance(inference_cfg, dict):
+                inference_cfg = {}
+            packaged = package_prediction_images(
+                config.command.expected_output_dir,
+                run.run_dir,
+                postprocess=inference_cfg.get("postprocess", {}),
+            )
             report = {
                 "schema_version": "microi2i.inference_report.v1",
                 "status": "dry_run" if dry_run else status,
@@ -80,6 +141,23 @@ def _run_wrapped_workflow(args: argparse.Namespace, workflow: str) -> int:
                 "packaged_predictions": packaged,
             }
             run.add_artifact("report.json", "report", "Inference report", report)
+            for name, kind, description in (
+                ("batch_summary.json", "batch_summary", "Per-image inference batch summary"),
+                ("batch_summary.csv", "batch_summary", "Per-image inference batch summary table"),
+                ("review.html", "html_review", "Human-readable inference image review"),
+            ):
+                artifact_path = run.run_dir / name
+                if artifact_path.exists():
+                    run.artifacts.append(
+                        {
+                            "path": name,
+                            "kind": kind,
+                            "description": description,
+                            "exists": True,
+                            "size_bytes": artifact_path.stat().st_size,
+                            "sha256": "",
+                        }
+                    )
             html_path = _write_html_report(run.run_dir, "microi2i inference report", report)
             run.artifacts.append(
                 {
@@ -140,6 +218,52 @@ def cmd_prepare_dataset(args: argparse.Namespace) -> int:
         status = "failed"
         exit_code = 1
         run.add_artifact("error_report.json", "error", "Dataset preparation error", {"error": str(exc)})
+    finalize_run(run, status=status, exit_code=exit_code)
+    print(str(run.run_dir))
+    return exit_code
+
+
+def cmd_data_qa(args: argparse.Namespace) -> int:
+    cfg = apply_overrides(load_config(args.config), args.set_values or [])
+    config = DatasetQAConfig.from_mapping(cfg)
+    run = start_run(
+        workflow="data_qa",
+        config_path=args.config,
+        resolved_config=cfg,
+        output_root=_repo_path(config.base.output_root),
+        command=sys.argv,
+    )
+    status = "success"
+    exit_code = 0
+    try:
+        report = run_dataset_qa(config, repo_root=ROOT)
+        run.add_artifact("dataset_qa_report.json", "dataset_qa_report", "Dataset QA report", report)
+        qa_dir = _repo_path(config.output_dir)
+        for name, kind, description in (
+            ("dataset_qa_report.html", "html_report", "Human-readable dataset QA report"),
+            ("contact_sheet.jpg", "contact_sheet", "Visual sample contact sheet"),
+        ):
+            path = qa_dir / name
+            if path.exists():
+                target = run.run_dir / name
+                target.write_bytes(path.read_bytes())
+                run.artifacts.append(
+                    {
+                        "path": target.name,
+                        "kind": kind,
+                        "description": description,
+                        "exists": target.exists(),
+                        "size_bytes": target.stat().st_size if target.exists() else 0,
+                        "sha256": "",
+                    }
+                )
+        if report["status"] == "failed":
+            status = "failed"
+            exit_code = 1
+    except Exception as exc:
+        status = "failed"
+        exit_code = 1
+        run.add_artifact("error_report.json", "error", "Dataset QA error", {"error": str(exc)})
     finalize_run(run, status=status, exit_code=exit_code)
     print(str(run.run_dir))
     return exit_code
@@ -209,6 +333,58 @@ def cmd_validate_registry(args: argparse.Namespace) -> int:
     return 0
 
 
+def _parse_metric_overrides(values: list[str]) -> dict[str, float | str]:
+    metrics: dict[str, float | str] = {}
+    for value in values:
+        if "=" not in value:
+            raise ValueError(f"metric override must use key=value: {value}")
+        key, raw = value.split("=", 1)
+        try:
+            metrics[key] = float(raw)
+        except ValueError:
+            metrics[key] = raw
+    return metrics
+
+
+def cmd_promote_model(args: argparse.Namespace) -> int:
+    registry_path = _repo_path(args.registry)
+    registry = load_model_registry(registry_path)
+    metrics = _parse_metric_overrides(args.metric or [])
+    updated = update_model_status(
+        registry,
+        model_id=args.model_id,
+        status=args.status,
+        note=args.note,
+        metrics=metrics,
+    )
+    errors = validate_model_registry(updated)
+    if errors:
+        for error in errors:
+            print(f"ERROR: {error}", file=sys.stderr)
+        return 1
+    if args.dry_run:
+        print(json.dumps(updated, indent=2, sort_keys=True))
+    else:
+        save_model_registry(updated, registry_path)
+        print(f"Updated {args.model_id} -> {args.status} in {registry_path}")
+    return 0
+
+
+def cmd_compare_runs(args: argparse.Namespace) -> int:
+    lower_is_better = bool(args.lower_is_better)
+    if args.higher_is_better:
+        lower_is_better = False
+    report = compare_run_reports(args.reports, metric=args.metric, lower_is_better=lower_is_better)
+    if args.output:
+        output_path = _repo_path(args.output)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(json.dumps(report, indent=2, sort_keys=True), encoding="utf-8")
+        print(str(output_path))
+    else:
+        print(json.dumps(report, indent=2, sort_keys=True))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="microi2i")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -230,6 +406,10 @@ def build_parser() -> argparse.ArgumentParser:
     add_config_flags(prep)
     prep.set_defaults(func=cmd_prepare_dataset)
 
+    data_qa = sub.add_parser("data-qa", help="Run dataset quality assurance")
+    add_config_flags(data_qa)
+    data_qa.set_defaults(func=cmd_data_qa)
+
     evaluate = sub.add_parser("evaluate", help="Run evaluation or emit evaluation report metadata")
     add_config_flags(evaluate)
     evaluate.set_defaults(func=cmd_evaluate)
@@ -244,6 +424,23 @@ def build_parser() -> argparse.ArgumentParser:
     validate.add_argument("--registry", default="frozen_checkpoints/model_registry.json")
     validate.add_argument("--set", dest="set_values", action="append", default=[])
     validate.set_defaults(func=cmd_validate_registry)
+
+    promote = sub.add_parser("promote-model", help="Update model lifecycle status in the registry")
+    promote.add_argument("--registry", default="frozen_checkpoints/model_registry.json")
+    promote.add_argument("--model-id", required=True)
+    promote.add_argument("--status", required=True, choices=["smoke", "candidate", "promoted", "deprecated"])
+    promote.add_argument("--note", default="")
+    promote.add_argument("--metric", action="append", default=[])
+    promote.add_argument("--dry-run", action="store_true")
+    promote.set_defaults(func=cmd_promote_model)
+
+    compare = sub.add_parser("compare-runs", help="Compare evaluation reports by an aggregate metric")
+    compare.add_argument("--reports", nargs="+", required=True)
+    compare.add_argument("--metric", default="mae_mean")
+    compare.add_argument("--lower-is-better", action="store_true", default=True)
+    compare.add_argument("--higher-is-better", action="store_true")
+    compare.add_argument("--output", default="")
+    compare.set_defaults(func=cmd_compare_runs)
 
     return parser
 

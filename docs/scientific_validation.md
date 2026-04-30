@@ -11,6 +11,8 @@ Image translation outputs must be evaluated as scientific artifacts, not only as
 - SSIM for structural similarity.
 - Histogram and contrast statistics for intensity distribution changes.
 - Edge preservation metrics for boundary-sensitive microscopy tasks.
+- High-frequency energy and Laplacian sharpness proxies for denoising and super-resolution screening.
+- Per-sample outlier ranking for expert review.
 
 ## pix2pix Validation
 
@@ -56,3 +58,19 @@ Every evaluation run should emit:
 - Per-sample metric table
 - Aggregate metric summary
 - Manifest references for dataset, model, and artifacts
+
+## Current Implemented Metrics
+
+`microi2i evaluate` currently computes the following per same-named prediction/target pair:
+
+- `mae`, `rmse`, `psnr`, and optional `ssim`
+- `gradient_correlation`
+- `edge_mae`
+- `histogram_l1`
+- `cnr_proxy_delta`
+- `high_frequency_energy_ratio`
+- `laplacian_sharpness_ratio`
+
+These are screening metrics, not a replacement for microscopy expertise. For EBSD/Kikuchi images,
+band preservation and downstream indexing quality remain the stronger validation targets when tooling
+and reference data are available.

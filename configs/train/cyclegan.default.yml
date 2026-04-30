@@ -7,6 +7,11 @@ runtime:
   seed: 42
 training:
   legacy_script: train.py
+  dataset_manifest_path: ""
+  smoke:
+    enabled: false
+    max_epochs: 1
+    max_dataset_size: 4
   legacy_args:
     - --dataroot
     - ./datasets/maps

@@ -7,6 +7,12 @@ runtime:
 inference:
   legacy_script: test.py
   expected_output_dir: ./results/microscopy_inference/test_latest/images
+  postprocess:
+    grayscale: false
+    resize: null
+    threshold: null
+    auto_contrast: false
+    rename_prefix: ""
   legacy_args:
     - --dataroot
     - ./datasets/horse2zebra/testA

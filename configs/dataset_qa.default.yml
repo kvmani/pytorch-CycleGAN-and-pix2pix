@@ -1,0 +1,22 @@
+schema_version: microi2i.dataset_qa_config.v1
+output_root: artifacts/runs
+dataset_id: microscopy_dataset_qa_default
+task_type: paired_translation
+source_roots:
+  - ./datasets/source
+output_dir: artifacts/dataset_qa/microscopy_dataset_qa_default
+leakage_group_policy:
+  mode: folder_or_specimen_id
+  regex: ""
+  required: false
+metadata:
+  modality: unknown
+  material: unknown
+  magnification: unknown
+  pixel_size: unknown
+  acquisition_notes: ""
+  specimen_id: unknown
+  operator: unknown
+contact_sheet:
+  max_images: 25
+  thumb_size: 128

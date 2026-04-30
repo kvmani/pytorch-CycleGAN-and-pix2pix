@@ -166,3 +166,36 @@ class DatasetPrepareConfig:
             preprocessing=_as_dict(payload.get("preprocessing", {}), field_name="preprocessing"),
             leakage_group_policy=LeakageGroupPolicy.from_mapping(payload.get("leakage_group_policy", {})),
         )
+
+
+@dataclass(frozen=True)
+class DatasetQAConfig:
+    """Dataset quality-assurance workflow config."""
+
+    base: WorkflowConfig
+    dataset_id: str
+    task_type: str
+    source_roots: list[str]
+    output_dir: str
+    leakage_group_policy: LeakageGroupPolicy
+    metadata: dict[str, Any]
+    contact_sheet: dict[str, Any]
+
+    @classmethod
+    def from_mapping(cls, payload: dict[str, Any]) -> "DatasetQAConfig":
+        dataset_id = str(payload.get("dataset_id", "")).strip()
+        if not dataset_id:
+            raise ValueError("dataset_id is required")
+        source_roots = [str(item) for item in _as_list(payload.get("source_roots", []), field_name="source_roots")]
+        if not source_roots:
+            raise ValueError("source_roots must contain at least one path")
+        return cls(
+            base=WorkflowConfig.from_mapping(payload),
+            dataset_id=dataset_id,
+            task_type=str(payload.get("task_type", "paired_translation")),
+            source_roots=source_roots,
+            output_dir=str(payload.get("output_dir", Path("artifacts") / "dataset_qa" / dataset_id)),
+            leakage_group_policy=LeakageGroupPolicy.from_mapping(payload.get("leakage_group_policy", {})),
+            metadata=_as_dict(payload.get("metadata", {}), field_name="metadata"),
+            contact_sheet=_as_dict(payload.get("contact_sheet", {}), field_name="contact_sheet"),
+        )

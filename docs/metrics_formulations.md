@@ -43,6 +43,78 @@ SSIM compares local luminance, contrast, and structure:
 
 where \(\mu_x,\mu_y\) are local means, \(\sigma_x^2,\sigma_y^2\) are local variances, and \(\sigma_{xy}\) is local covariance.
 
+## Gradient Correlation
+
+Let \(G(I)=\sqrt{(\partial_x I)^2 + (\partial_y I)^2}\) be the gradient magnitude image.
+
+\[
+\rho_G =
+\frac{\mathrm{cov}(G(I),G(\hat{I}))}
+{\sigma_{G(I)}\sigma_{G(\hat{I})}}
+\]
+
+High gradient correlation indicates that translated images preserve major edges and boundaries.
+It can be undefined for nearly constant images.
+
+## Edge Mean Absolute Error
+
+\[
+\mathrm{EdgeMAE} =
+\frac{1}{N}\sum_{i=1}^{N}|G(I)_i - G(\hat{I})_i|
+\]
+
+Lower values indicate closer local edge strength. In microscopy, this is useful for detecting
+over-smoothing or artificial boundary sharpening.
+
+## Histogram L1 Distance
+
+For normalized intensity histograms \(h_I\) and \(h_{\hat{I}}\):
+
+\[
+D_\mathrm{hist} = \frac{1}{2}\sum_b |h_I(b)-h_{\hat{I}}(b)|
+\]
+
+The value is zero when the binned intensity distributions match.
+
+## Contrast-To-Noise Proxy Delta
+
+MicroI2I uses a simple robust contrast proxy:
+
+\[
+\mathrm{CNR}_{proxy}(I) =
+\frac{P_{95}(I)-P_{5}(I)}{\sigma_I+\epsilon}
+\]
+
+and reports:
+
+\[
+\Delta\mathrm{CNR}_{proxy}=|\mathrm{CNR}_{proxy}(I)-\mathrm{CNR}_{proxy}(\hat{I})|
+\]
+
+This is not a substitute for instrument-aware CNR, but it is useful for automated screening.
+
+## High-Frequency Energy Ratio
+
+\[
+R_{HF} = \frac{\mathrm{mean}(G(\hat{I}))}{\mathrm{mean}(G(I))}
+\]
+
+Values much below one suggest smoothing; values much above one may indicate noise amplification or
+hallucinated texture.
+
+## Laplacian Sharpness Ratio
+
+Using a discrete Laplacian operator \(\nabla^2\):
+
+\[
+R_{\nabla^2} =
+\frac{\mathrm{var}(\nabla^2\hat{I})}
+{\mathrm{var}(\nabla^2 I)}
+\]
+
+This proxy helps screen denoising and super-resolution outputs for excessive blur or artificial
+sharpening.
+
 ## Scientific Use
 
 Metrics must be interpreted alongside visual review and task-specific downstream checks.

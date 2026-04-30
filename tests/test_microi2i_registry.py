@@ -1,6 +1,14 @@
 from __future__ import annotations
 
-from microi2i.plugins.registry import load_model_registry, validate_model_registry
+import json
+
+from microi2i.app.cli import main
+from microi2i.plugins.registry import (
+    compare_run_reports,
+    load_model_registry,
+    update_model_status,
+    validate_model_registry,
+)
 
 
 def test_default_model_registry_is_valid() -> None:
@@ -19,3 +27,55 @@ def test_registry_validation_reports_missing_fields() -> None:
 
     assert errors
     assert "missing fields" in errors[0]
+
+
+def test_update_model_status_records_lifecycle_history() -> None:
+    registry = load_model_registry("frozen_checkpoints/model_registry.json")
+
+    updated = update_model_status(
+        registry,
+        model_id="smoke_pix2pix_unet256",
+        status="candidate",
+        note="unit test promotion",
+        metrics={"mae_mean": 1.25},
+    )
+
+    record = next(item for item in updated["models"] if item["model_id"] == "smoke_pix2pix_unet256")
+    assert record["status"] == "candidate"
+    assert record["metrics"]["mae_mean"] == 1.25
+    assert record["lifecycle_history"]
+    assert registry["models"][0]["status"] == "smoke"
+
+
+def test_compare_run_reports_ranks_by_metric(tmp_path) -> None:
+    first = tmp_path / "first.json"
+    second = tmp_path / "second.json"
+    first.write_text(
+        json.dumps({"schema_version": "microi2i.evaluation_report.v1", "metrics": {"aggregate": {"mae_mean": 2.0}}}),
+        encoding="utf-8",
+    )
+    second.write_text(
+        json.dumps({"schema_version": "microi2i.evaluation_report.v1", "metrics": {"aggregate": {"mae_mean": 1.0}}}),
+        encoding="utf-8",
+    )
+
+    report = compare_run_reports([first, second], metric="mae_mean")
+
+    assert report["ranked"][0]["path"] == str(second)
+
+
+def test_cli_promote_model_dry_run_does_not_modify_registry() -> None:
+    exit_code = main(
+        [
+            "promote-model",
+            "--model-id",
+            "smoke_pix2pix_unet256",
+            "--status",
+            "candidate",
+            "--note",
+            "dry run only",
+            "--dry-run",
+        ]
+    )
+
+    assert exit_code == 0

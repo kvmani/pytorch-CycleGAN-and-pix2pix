@@ -87,6 +87,51 @@ Validation and test splits must avoid leakage across:
 The current split implementation groups samples by parent folder by default.
 Set `leakage_group_policy.regex` to extract a specimen or scan ID from file paths when folder grouping is insufficient.
 
+## Deterministic Preprocessing
+
+`microi2i prepare-dataset` can apply deterministic preprocessing while materializing the dataset.
+Supported policy keys are:
+
+- `color_mode`: `preserve`, `rgb`, or `grayscale`
+- `center_crop`: `[width, height]`
+- `random_crop`: `[width, height]`, seeded by the split policy and relative path
+- `resize`: `[width, height]`
+- `pad_to`: `[width, height]`
+- `letterbox`: `[width, height]`
+- `fill`: integer pad value
+
+Example:
+
+```yaml
+preprocessing:
+  color_mode: rgb
+  center_crop: [512, 512]
+  resize: [256, 256]
+  letterbox: null
+  fill: 0
+```
+
+Every copied sample receives a deterministic `global_id` in `dataset_manifest.json`.
+
+## Dataset QA Before Training
+
+Run dataset QA before training:
+
+```bash
+microi2i data-qa --config configs/dataset_qa.default.yml
+```
+
+QA checks include:
+
+- empty source roots,
+- unreadable images,
+- duplicate image files,
+- width/height/channel mismatches,
+- missing leakage-group IDs,
+- cross-domain leakage-group overlap for unpaired datasets.
+
+The report should be reviewed before launching long training jobs.
+
 ## File Formats
 
 Initial workflows should support common image formats through PIL/OpenCV.

@@ -64,6 +64,51 @@ Required fields:
 
 The initial supported layouts are `pix2pix_aligned` and `cyclegan_unaligned`.
 
+## Dataset QA Report
+
+File: `dataset_qa_report.json`
+
+Required fields:
+
+- `schema_version`
+- `dataset_id`
+- `task_type`
+- `status`
+- `metadata`
+- `source_roots`
+- `root_summaries`
+- `summary`
+- `leakage_group_policy`
+- `samples`
+- `issues`
+- `contact_sheet`
+
+The matching `dataset_qa_report.html` and `contact_sheet.jpg` support human review before training.
+
+## Training Report
+
+File: `training_report.json`
+
+Required fields:
+
+- `schema_version`
+- `status`
+- `preflight`
+
+The preflight section records parsed legacy options, model family, dataset mode, experiment name,
+script and dataset path checks, runtime settings, warnings, and errors. Training packages must also
+include `metrics_log.csv`, `metrics_log.jsonl`, and `training_summary.html` even when legacy internals
+are still responsible for the actual optimization loop.
+
+## Evaluation Report
+
+File: `report.json`
+
+Evaluation reports use `microi2i.evaluation_report.v1` and must include per-sample metrics plus
+aggregate metrics. Current aggregate fields include pixel fidelity, SSIM when available, edge/gradient
+metrics, histogram distance, contrast-to-noise proxy delta, high-frequency energy ratio, and Laplacian
+sharpness ratio.
+
 ## Model Registry
 
 File: `frozen_checkpoints/model_registry.json`
@@ -82,6 +127,11 @@ Each model entry should include:
 - `scientific_use`
 - `limitations`
 - `status`
+- optional `lifecycle_history`
+
+Allowed statuses are `smoke`, `candidate`, `promoted`, and `deprecated`.
+Promotion to `candidate` or `promoted` must be backed by a dataset manifest, evaluation report,
+documented limitations, and reviewable provenance.
 
 ## Schema Versions
 

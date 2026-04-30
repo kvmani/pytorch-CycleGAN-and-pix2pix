@@ -37,8 +37,10 @@ Legacy scripts and modules may be moved, renamed, or absorbed only after equival
 - Keep data preparation, training, inference, evaluation, manifests, and reporting separate.
 - Use config files and command overrides instead of hardcoded machine paths.
 - Do not hardcode checkpoint paths, dataset roots, host names, or scientific constants without documenting them.
-- Public APIs must use type hints and clear docstrings.
+- Public APIs must use type hints and clear NumPy- or Google-style docstrings.
 - Avoid import-time side effects in library modules.
+- New package code must be testable without requiring GPU hardware, internet access, or large datasets.
+- Heavy model execution belongs behind explicit smoke/integration gates, not import-time or default unit tests.
 
 ## Scientific Provenance
 
@@ -63,6 +65,8 @@ At minimum:
 
 Markdown links inside the repository must be repository-relative.
 
+Every behavior change must include tests, docs, and provenance updates in the same change unless the change is explicitly documentation-only or test-only.
+
 ## Sphinx Teaching Documentation Standard
 
 This repository must function as both a research codebase and a teaching tool.
@@ -84,10 +88,30 @@ Mandatory documentation expectations:
 
 ## Testing Expectations
 
-- Add unit tests for config parsing, manifest generation, and registry validation.
-- Add integration or smoke tests before replacing legacy train/infer behavior.
-- CPU-only smoke tests must remain available.
-- Scientific metric changes require tests or documented validation examples.
+- Unit tests are mandatory for pure logic, config schemas, metrics, registry validation, and manifest generation.
+- Integration tests are mandatory for CLI workflows, generated artifacts, dataset preparation, and report creation.
+- CPU-only smoke tests are mandatory for train/infer plumbing before legacy workflows are removed.
+- Regression tests are mandatory before migrating EBSD/Kikuchi behavior.
+- Scientific metric changes require synthetic-data tests with known expected values and Sphinx documentation with formulas.
+- Dataset splitting and leakage controls require deterministic tests.
+- Every substantial documentation change must keep `python scripts/build_docs.py --html-only` green.
+- The local quality gate is `python scripts/check_repo.py`; it must pass before handoff or commit unless a blocker is documented.
+
+## Production Quality Gates
+
+Before merge, changes must satisfy:
+
+- `python -m pytest tests`
+- `python scripts/microi2i_cli.py validate-registry`
+- `python scripts/build_docs.py --html-only`
+- `python scripts/check_repo.py`
+
+Feature work must also satisfy the relevant gate:
+
+- New workflow: unit tests, CLI integration test, manifest/report validation, docs page, and usage command.
+- New metric: formula docs, unit tests, interpretation notes, and failure/limitation notes.
+- New model backend: interface compliance test, config preset, registry metadata, architecture docs, and smoke path.
+- Legacy migration: parity test, old/new artifact comparison where practical, and removal notes.
 
 ## What To Avoid
 
