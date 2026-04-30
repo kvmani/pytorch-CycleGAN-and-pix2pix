@@ -1,5 +1,5 @@
 schema_version: microi2i.inference_config.v1
-workflow: folder_inference
+workflow: single_image_inference
 model_backend: legacy_pix2pix
 output_root: artifacts/runs
 dry_run: false
@@ -9,11 +9,10 @@ runtime:
   require_cuda: false
 inference:
   legacy_script: test.py
-  expected_output_dir: ./results/microscopy_inference/test_latest/images
+  expected_output_dir: ./results/microscopy_single/test_latest/images
   inputs:
-    mode: folder
-    path: ./datasets/horse2zebra/testA
-    recursive: false
+    mode: single
+    path: ./datasets/single_image/example.png
     copy_to_run: true
   postprocess:
     grayscale: false
@@ -23,13 +22,13 @@ inference:
     rename_prefix: ""
   legacy_args:
     - --dataroot
-    - ./datasets/horse2zebra/testA
+    - ./datasets/single_image
     - --name
-    - microscopy_inference
+    - microscopy_single
     - --model
     - test
     - --no_dropout
     - --gpu_ids
     - "-1"
 notes:
-  purpose: Default migration-layer folder inference config. Replace dataroot/name/model options for real work.
+  purpose: Single-image inference wrapper. Override inference.inputs.path and legacy dataroot for real work.

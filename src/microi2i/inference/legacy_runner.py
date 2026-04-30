@@ -26,6 +26,120 @@ def build_inference_command(config: ScriptWorkflowConfig, *, repo_root: Path) ->
     return [sys.executable, str(script), *config.command.legacy_args]
 
 
+def materialize_inference_inputs(
+    inputs: dict[str, Any],
+    *,
+    repo_root: Path,
+    run_dir: Path,
+) -> dict[str, Any]:
+    """Normalize configured inference inputs into a manifest and optional staging folder."""
+
+    mode = str(inputs.get("mode", "legacy")).lower()
+    if mode == "legacy":
+        report = {
+            "schema_version": "microi2i.inference_inputs.v1",
+            "mode": mode,
+            "status": "skipped",
+            "reason": "legacy dataroot is used directly",
+            "samples": [],
+        }
+        (run_dir / "inference_inputs.json").write_text(json.dumps(report, indent=2, sort_keys=True), encoding="utf-8")
+        return report
+
+    recursive = bool(inputs.get("recursive", False))
+    copy_to_run = bool(inputs.get("copy_to_run", True))
+    source_paths = _select_input_paths(inputs, repo_root=repo_root, recursive=recursive)
+    staging_dir = run_dir / "inputs"
+    samples: list[dict[str, Any]] = []
+    failures: list[dict[str, str]] = []
+    if copy_to_run:
+        staging_dir.mkdir(parents=True, exist_ok=True)
+    for index, source in enumerate(source_paths):
+        try:
+            with Image.open(source) as img:
+                width, height = img.size
+                mode_name = img.mode
+                channels = len(img.getbands())
+            target_relative = ""
+            if copy_to_run:
+                target = staging_dir / f"{index:05d}_{source.name}"
+                shutil.copy2(source, target)
+                target_relative = str(target.relative_to(run_dir))
+            samples.append(
+                {
+                    "index": index,
+                    "source_path": str(source),
+                    "run_relative_path": target_relative,
+                    "filename": source.name,
+                    "width": width,
+                    "height": height,
+                    "mode": mode_name,
+                    "channels": channels,
+                    "size_bytes": source.stat().st_size,
+                }
+            )
+        except Exception as exc:
+            failures.append({"source_path": str(source), "error": str(exc)})
+
+    report = {
+        "schema_version": "microi2i.inference_inputs.v1",
+        "mode": mode,
+        "status": "ready" if samples and not failures else ("failed" if failures and not samples else "partial"),
+        "copy_to_run": copy_to_run,
+        "recursive": recursive,
+        "sample_count": len(samples),
+        "failure_count": len(failures),
+        "staging_dir": str(staging_dir) if copy_to_run else "",
+        "samples": samples,
+        "failures": failures,
+    }
+    (run_dir / "inference_inputs.json").write_text(json.dumps(report, indent=2, sort_keys=True), encoding="utf-8")
+    _write_inputs_csv(samples, run_dir / "inference_inputs.csv")
+    return report
+
+
+def _repo_path(value: str | Path, *, repo_root: Path) -> Path:
+    path = Path(value)
+    if path.is_absolute():
+        return path
+    return repo_root / path
+
+
+def _select_input_paths(inputs: dict[str, Any], *, repo_root: Path, recursive: bool) -> list[Path]:
+    mode = str(inputs.get("mode", "")).lower()
+    if mode == "single":
+        path = _repo_path(str(inputs.get("path", "")), repo_root=repo_root)
+        return [path] if path.exists() else []
+    if mode == "folder":
+        root = _repo_path(str(inputs.get("path", "")), repo_root=repo_root)
+        iterator = root.rglob("*") if recursive else root.glob("*")
+        return sorted(path for path in iterator if path.is_file() and path.suffix.lower() in IMAGE_EXTENSIONS)
+    if mode == "manifest":
+        manifest = _repo_path(str(inputs.get("manifest_path", "")), repo_root=repo_root)
+        payload = json.loads(manifest.read_text(encoding="utf-8"))
+        items = payload.get("samples", payload if isinstance(payload, list) else [])
+        paths: list[Path] = []
+        if isinstance(items, list):
+            for item in items:
+                if isinstance(item, str):
+                    paths.append(_repo_path(item, repo_root=repo_root))
+                elif isinstance(item, dict):
+                    raw = item.get("path", item.get("source_path", ""))
+                    if raw:
+                        paths.append(_repo_path(str(raw), repo_root=repo_root))
+        return [path for path in paths if path.exists() and path.suffix.lower() in IMAGE_EXTENSIONS]
+    raise ValueError("inference.inputs.mode must be one of: legacy, single, folder, manifest")
+
+
+def _write_inputs_csv(rows: list[dict[str, Any]], path: Path) -> None:
+    fields = ["index", "filename", "source_path", "run_relative_path", "width", "height", "mode", "channels", "size_bytes"]
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fields)
+        writer.writeheader()
+        for row in rows:
+            writer.writerow({field: row.get(field, "") for field in fields})
+
+
 def package_prediction_images(
     source_dir: str | Path,
     run_dir: Path,

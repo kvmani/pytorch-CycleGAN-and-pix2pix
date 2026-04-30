@@ -55,6 +55,18 @@ Create tiny deterministic pix2pix and CycleGAN datasets:
 microi2i create-smoke-data --config configs/smoke/default.yml
 ```
 
+Run the smoke gate with dry-run train/infer checks:
+
+```bash
+python scripts/smoke_gate.py
+```
+
+Run tiny real CPU training only when dependencies are installed and runtime is acceptable:
+
+```bash
+python scripts/smoke_gate.py --run-training
+```
+
 Dry-run the smoke training commands:
 
 ```bash
@@ -103,6 +115,7 @@ microi2i infer --config configs/inference/folder.default.yml
 ```
 
 Inference runs write `run_manifest.json`, `artifact_manifest.json`, `report.json`, and `report.html` under the configured `output_root`.
+Input selection is normalized into `inference_inputs.json` and `inference_inputs.csv` when `inference.inputs` is configured.
 When `inference.expected_output_dir` points to generated legacy result images, MicroI2I also packages:
 
 ```text
@@ -121,6 +134,24 @@ postprocess:
   threshold: null
   auto_contrast: false
   rename_prefix: pred
+```
+
+Supported input modes:
+
+```yaml
+inference:
+  inputs:
+    mode: folder      # legacy, single, folder, or manifest
+    path: ./images
+    recursive: true
+    copy_to_run: true
+```
+
+Single-image and manifest-driven presets are also available:
+
+```bash
+microi2i infer --config configs/inference/single_image.default.yml --dry-run
+microi2i infer --config configs/inference/manifest.default.yml --dry-run
 ```
 
 ## Prepare Paired Microscopy Dataset

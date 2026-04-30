@@ -43,6 +43,10 @@ loss-curve plots, and fully executable CPU smoke training in CI.
 - Add human-review panels for scientific inspection.
 - Preserve partial outputs and failure reports for interrupted runs.
 
+Current status: folder, single-image, recursive folder, and manifest input normalization now emit
+`inference_inputs.json`/`.csv` before legacy inference. Remaining work is direct legacy dataroot
+staging for non-dry runs and richer comparison panels against references.
+
 ## Phase 5: Scientific Evaluation And Metrics
 
 - Expand metrics beyond MAE/RMSE/PSNR/SSIM.
@@ -83,6 +87,10 @@ and then new research adapters such as CUT or restoration baselines.
 - Add optional lint/type checks once the migrated code stabilizes.
 - Add CI when ready: install dependencies, run tests, validate registry, build docs, and run CLI smoke commands.
 - Keep generated artifacts ignored and source artifacts reproducible.
+
+Current status: `scripts/smoke_gate.py` provides a dry-run smoke gate and an opt-in real CPU training
+mode. The local `scripts/check_repo.py --include-smoke` path runs this smoke gate after tests,
+registry validation, and docs.
 
 ## Definition Of Done
 

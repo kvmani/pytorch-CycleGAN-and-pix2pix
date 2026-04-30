@@ -14,7 +14,7 @@ from microi2i.dataops.dataset_prepare import prepare_dataset
 from microi2i.dataops.dataset_qa import run_dataset_qa
 from microi2i.dataops.smoke_data import create_smoke_datasets
 from microi2i.io.configuration import apply_overrides, load_config
-from microi2i.inference.legacy_runner import package_prediction_images
+from microi2i.inference.legacy_runner import materialize_inference_inputs, package_prediction_images
 from microi2i.manifests.reporting import finalize_run, start_run
 from microi2i.evaluation.image_translation import evaluate_paired_directories
 from microi2i.models.backends import get_model_backend, infer_backend_id
@@ -152,6 +152,18 @@ def _run_wrapped_workflow(args: argparse.Namespace, workflow: str) -> int:
             inference_cfg = cfg.get("inference", {})
             if not isinstance(inference_cfg, dict):
                 inference_cfg = {}
+            input_report = materialize_inference_inputs(
+                inference_cfg.get("inputs", {"mode": "legacy"}),
+                repo_root=ROOT,
+                run_dir=run.run_dir,
+            )
+            for name, kind, description in (
+                ("inference_inputs.json", "inference_inputs", "Normalized inference input manifest"),
+                ("inference_inputs.csv", "inference_inputs", "Normalized inference input table"),
+            ):
+                artifact_path = run.run_dir / name
+                if artifact_path.exists():
+                    _record_existing_artifact(run, artifact_path, kind, description)
             packaged = package_prediction_images(
                 config.command.expected_output_dir,
                 run.run_dir,
@@ -162,6 +174,7 @@ def _run_wrapped_workflow(args: argparse.Namespace, workflow: str) -> int:
                 "status": "dry_run" if dry_run else status,
                 "model_backend": backend_metadata,
                 "command": command,
+                "inputs": input_report,
                 "packaged_predictions": packaged,
             }
             run.add_artifact("report.json", "report", "Inference report", report)

@@ -1,19 +1,18 @@
 schema_version: microi2i.inference_config.v1
-workflow: folder_inference
+workflow: manifest_inference
 model_backend: legacy_pix2pix
 output_root: artifacts/runs
 dry_run: false
 runtime:
-  device: cpu
-  gpu_ids: "-1"
+  device: auto
+  gpu_ids: "0"
   require_cuda: false
 inference:
   legacy_script: test.py
-  expected_output_dir: ./results/microscopy_inference/test_latest/images
+  expected_output_dir: ./results/microscopy_manifest/test_latest/images
   inputs:
-    mode: folder
-    path: ./datasets/horse2zebra/testA
-    recursive: false
+    mode: manifest
+    manifest_path: ./artifacts/inference_inputs_manifest.json
     copy_to_run: true
   postprocess:
     grayscale: false
@@ -23,13 +22,13 @@ inference:
     rename_prefix: ""
   legacy_args:
     - --dataroot
-    - ./datasets/horse2zebra/testA
+    - ./datasets/manifest_inference
     - --name
-    - microscopy_inference
+    - microscopy_manifest
     - --model
     - test
     - --no_dropout
     - --gpu_ids
-    - "-1"
+    - "0"
 notes:
-  purpose: Default migration-layer folder inference config. Replace dataroot/name/model options for real work.
+  purpose: Manifest-driven inference wrapper for curated image batches.

@@ -75,6 +75,18 @@ python scripts/check_repo.py
 
 `scripts/check_repo.py` is the single command quality gate and should remain aligned with this document.
 
+Optional smoke workflow gate:
+
+```bash
+python scripts/check_repo.py --include-smoke
+```
+
+Real CPU training smoke runs remain opt-in:
+
+```bash
+python scripts/smoke_gate.py --run-training
+```
+
 ## Acceptance Rule
 
 A feature is not complete until:

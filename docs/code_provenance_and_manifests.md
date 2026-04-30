@@ -131,6 +131,14 @@ Training and inference reports must include `model_backend` metadata:
 
 The current backend IDs are `legacy_pix2pix` and `legacy_cyclegan`.
 
+## Inference Inputs
+
+File: `inference_inputs.json`
+
+Inference input manifests use `microi2i.inference_inputs.v1` and record selected input samples before
+legacy inference launches. Supported modes are `legacy`, `single`, `folder`, and `manifest`.
+When `copy_to_run` is enabled, selected inputs are copied under the run folder for review.
+
 ## Smoke Dataset Manifest
 
 File: `smoke_dataset_manifest.json`

@@ -24,6 +24,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Run tests, registry validation, and docs build")
     parser.add_argument("--skip-docs", action="store_true", help="Skip Sphinx docs build")
     parser.add_argument("--skip-tests", action="store_true", help="Skip pytest")
+    parser.add_argument("--include-smoke", action="store_true", help="Run dry-run smoke workflow checks")
     args = parser.parse_args(argv)
 
     checks: list[tuple[str, list[str]]] = []
@@ -32,6 +33,8 @@ def main(argv: list[str] | None = None) -> int:
     checks.append(("registry validation", [sys.executable, "scripts/microi2i_cli.py", "validate-registry"]))
     if not args.skip_docs:
         checks.append(("docs html build", [sys.executable, "scripts/build_docs.py", "--html-only"]))
+    if args.include_smoke:
+        checks.append(("smoke gate", [sys.executable, "scripts/smoke_gate.py"]))
 
     for label, command in checks:
         exit_code = _run(label, command)
