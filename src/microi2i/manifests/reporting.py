@@ -101,7 +101,8 @@ def finalize_run(run: RunContext, *, status: str, exit_code: int) -> None:
         "started_utc": run.started_utc,
         "finished_utc": finished,
     }
-    run.add_artifact("report.json", "report", "Workflow report", report)
+    report_name = "run_report.json" if (run.run_dir / "report.json").exists() else "report.json"
+    run.add_artifact(report_name, "run_report", "Workflow run report", report)
     artifact_manifest = {
         "schema_version": "microi2i.artifact_manifest.v1",
         "run_id": run.run_id,

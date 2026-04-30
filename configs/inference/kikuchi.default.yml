@@ -4,6 +4,17 @@ output_root: artifacts/runs
 dry_run: false
 inference:
   legacy_script: run_kikuchi_inference.py
-  legacy_args: []
+  expected_output_dir: artifacts/inference/kikuchi/kikuchi_model/test_latest/images
+  legacy_args:
+    - --input_folder
+    - ./datasets/kikuchi_inference
+    - --results_dir
+    - artifacts/inference/kikuchi
+    - --model_name
+    - kikuchi_model
+    - --target_size
+    - "230"
+    - --epoch
+    - latest
 notes:
-  purpose: Kikuchi inference migration wrapper. Parameterized config will replace script defaults in a later phase.
+  purpose: Kikuchi inference migration wrapper with explicit parameters.

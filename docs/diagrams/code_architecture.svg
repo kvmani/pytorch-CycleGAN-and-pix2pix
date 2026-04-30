@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="650" viewBox="0 0 1100 650" role="img" aria-labelledby="title desc">
+  <title id="title">MicroI2I code architecture</title>
+  <desc id="desc">Architecture diagram showing CLI, configs, package modules, legacy backends, manifests, and reports.</desc>
+  <defs>
+    <linearGradient id="navy" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#102a43"/>
+      <stop offset="100%" stop-color="#1b4965"/>
+    </linearGradient>
+    <linearGradient id="teal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2a9d8f"/>
+      <stop offset="100%" stop-color="#176b87"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffd166"/>
+      <stop offset="100%" stop-color="#f2b84b"/>
+    </linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#dff3ff"/>
+      <stop offset="100%" stop-color="#bde0fe"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#102a43" flood-opacity="0.18"/>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#24566f"/>
+    </marker>
+    <style>
+      .title{font:700 28px Segoe UI,Arial,sans-serif;fill:#102a43}
+      .label{font:700 17px Segoe UI,Arial,sans-serif;fill:white}
+      .dark{font:700 17px Segoe UI,Arial,sans-serif;fill:#102a43}
+      .small{font:500 13px Segoe UI,Arial,sans-serif;fill:#234}
+      .box{rx:18;filter:url(#shadow)}
+      .line{stroke:#24566f;stroke-width:3;fill:none;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="1100" height="650" fill="#f7fbfd"/>
+  <text x="50" y="55" class="title">MicroI2I Package Architecture</text>
+  <rect x="50" y="95" width="210" height="86" rx="18" fill="url(#navy)" class="box"/>
+  <text x="82" y="130" class="label">microi2i CLI</text>
+  <text x="82" y="155" class="label">train / infer / eval</text>
+  <rect x="330" y="95" width="210" height="86" rx="18" fill="url(#gold)" class="box"/>
+  <text x="365" y="132" class="dark">YAML Configs</text>
+  <text x="365" y="156" class="small">--set dotted overrides</text>
+  <rect x="610" y="95" width="210" height="86" rx="18" fill="url(#teal)" class="box"/>
+  <text x="645" y="132" class="label">Typed Contracts</text>
+  <text x="645" y="156" class="label">validated workflows</text>
+  <rect x="865" y="95" width="185" height="86" rx="18" fill="url(#blue)" class="box"/>
+  <text x="895" y="132" class="dark">Manifest Layer</text>
+  <text x="895" y="156" class="small">run + artifacts</text>
+  <path class="line" d="M260 138 H330"/>
+  <path class="line" d="M540 138 H610"/>
+  <path class="line" d="M820 138 H865"/>
+  <rect x="85" y="265" width="200" height="92" rx="18" fill="url(#blue)" class="box"/>
+  <text x="123" y="300" class="dark">DataOps</text>
+  <text x="123" y="324" class="small">paired / unpaired</text>
+  <text x="123" y="344" class="small">deterministic splits</text>
+  <rect x="335" y="265" width="200" height="92" rx="18" fill="url(#blue)" class="box"/>
+  <text x="370" y="300" class="dark">Training</text>
+  <text x="370" y="324" class="small">legacy backend now</text>
+  <text x="370" y="344" class="small">package orchestration</text>
+  <rect x="585" y="265" width="200" height="92" rx="18" fill="url(#blue)" class="box"/>
+  <text x="620" y="300" class="dark">Inference</text>
+  <text x="620" y="324" class="small">prediction package</text>
+  <text x="620" y="344" class="small">HTML/JSON report</text>
+  <rect x="835" y="265" width="200" height="92" rx="18" fill="url(#blue)" class="box"/>
+  <text x="870" y="300" class="dark">Evaluation</text>
+  <text x="870" y="324" class="small">MAE RMSE PSNR</text>
+  <text x="870" y="344" class="small">SSIM optional</text>
+  <path class="line" d="M715 181 C715 225 185 220 185 265"/>
+  <path class="line" d="M715 181 C715 225 435 220 435 265"/>
+  <path class="line" d="M715 181 C715 225 685 220 685 265"/>
+  <path class="line" d="M715 181 C715 225 935 220 935 265"/>
+  <rect x="210" y="455" width="260" height="92" rx="18" fill="url(#navy)" class="box"/>
+  <text x="252" y="492" class="label">Legacy Model Internals</text>
+  <text x="252" y="518" class="label">train.py / test.py</text>
+  <rect x="625" y="455" width="260" height="92" rx="18" fill="url(#teal)" class="box"/>
+  <text x="672" y="492" class="label">Scientific Outputs</text>
+  <text x="672" y="518" class="label">reports + manifests</text>
+  <path class="line" d="M435 357 C435 405 340 405 340 455"/>
+  <path class="line" d="M685 357 C685 405 340 405 340 455"/>
+  <path class="line" d="M285 311 H335"/>
+  <path class="line" d="M785 311 H835"/>
+  <path class="line" d="M470 501 H625"/>
+</svg>

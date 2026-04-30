@@ -6,6 +6,7 @@ runtime:
   gpu_ids: "-1"
 inference:
   legacy_script: test.py
+  expected_output_dir: ./results/microscopy_inference/test_latest/images
   legacy_args:
     - --dataroot
     - ./datasets/horse2zebra/testA

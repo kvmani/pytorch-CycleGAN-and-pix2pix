@@ -61,6 +61,8 @@ runs/
 docs/_build/
 docs/.doctrees/
 docs/src/
+docs/*.html
+docs/*_files/
 
 # ML model binaries and large scientific arrays
 *.pt

@@ -21,6 +21,9 @@ Required fields:
 - `environment`
 - `artifacts`
 
+The workflow closeout report is written as `report.json` unless the workflow already wrote a domain-specific `report.json`.
+In that case, closeout writes `run_report.json` and leaves the workflow report intact.
+
 ## Artifact Manifest
 
 File: `artifact_manifest.json`
@@ -51,11 +54,15 @@ Required fields:
 - `dataset_id`
 - `source_roots`
 - `task_type`
+- `layout`
+- `output_dataset_dir`
 - `split_policy`
 - `preprocessing`
 - `sample_counts`
 - `leakage_group_policy`
-- `created_utc`
+- `copied_files`
+
+The initial supported layouts are `pix2pix_aligned` and `cyclegan_unaligned`.
 
 ## Model Registry
 

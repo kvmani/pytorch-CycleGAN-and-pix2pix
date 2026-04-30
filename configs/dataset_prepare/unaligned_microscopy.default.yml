@@ -5,6 +5,7 @@ task_type: unpaired_translation
 source_roots:
   - ./datasets/domain_a
   - ./datasets/domain_b
+output_dataset_dir: artifacts/prepared_datasets/unaligned_microscopy_default
 split_policy:
   train_ratio: 0.8
   val_ratio: 0.1
@@ -15,4 +16,5 @@ preprocessing:
   color_mode: rgb
 leakage_group_policy:
   mode: folder_or_specimen_id
+  regex: ""
   required: true

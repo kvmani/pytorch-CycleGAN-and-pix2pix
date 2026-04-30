@@ -1,0 +1,29 @@
+:root {
+  --microi2i-blue: #176b87;
+  --microi2i-navy: #102a43;
+  --microi2i-gold: #f2b84b;
+  --microi2i-teal: #2a9d8f;
+}
+
+.bd-main .bd-content .bd-article-container {
+  max-width: 920px;
+}
+
+.admonition {
+  border-radius: 10px;
+}
+
+.microi2i-callout {
+  border-left: 5px solid var(--microi2i-teal);
+  background: linear-gradient(90deg, #eefaf8 0%, #ffffff 100%);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+}
+
+img.architecture-diagram {
+  border: 1px solid #d9e5ec;
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(16, 42, 67, 0.12);
+  background: #ffffff;
+  padding: 0.5rem;
+}

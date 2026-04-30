@@ -63,6 +63,25 @@ At minimum:
 
 Markdown links inside the repository must be repository-relative.
 
+## Sphinx Teaching Documentation Standard
+
+This repository must function as both a research codebase and a teaching tool.
+All substantial features must be documented in the Sphinx documentation site under `docs/`.
+
+Mandatory documentation expectations:
+
+- Keep `docs/index.md` as the canonical documentation landing page.
+- Build documentation with `python scripts/build_docs.py --html-only` for routine checks.
+- Use MyST Markdown with MathJax-compatible LaTeX for equations.
+- Include mathematical formulations for losses, metrics, preprocessing transforms, and scientific calculations when relevant.
+- Explain key ML and microscopy terms for students and interdisciplinary collaborators.
+- Add or update SVG diagrams under `docs/diagrams/` for architecture, model structure, workflows, and data flow when behavior is non-trivial.
+- SVG diagrams must use professional visual styling: readable typography, rounded boxes, consistent spacing, gradients where helpful, and a coherent color palette.
+- Avoid relying on inline Mermaid as final publication documentation; use committed SVG diagrams for stable HTML/PDF output.
+- Documentation must cover philosophy and scientific assumptions, not only command syntax.
+- Any new model family must include architecture explanation, original citation, local modifications, assumptions, failure modes, and validation guidance.
+- Any new metric must include its mathematical formula, symbol definitions, interpretation, and limitations.
+
 ## Testing Expectations
 
 - Add unit tests for config parsing, manifest generation, and registry validation.

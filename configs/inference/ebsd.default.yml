@@ -4,6 +4,15 @@ output_root: artifacts/runs
 dry_run: false
 inference:
   legacy_script: run_ebsd_inference.py
-  legacy_args: []
+  expected_output_dir: artifacts/inference/ebsd/test_latest/images
+  legacy_args:
+    - --input_folder
+    - ./datasets/ebsd_inference
+    - --results_dir
+    - artifacts/inference/ebsd
+    - --model_name
+    - ebsd_model
+    - --target_size
+    - "256"
 notes:
-  purpose: EBSD inference migration wrapper. Parameterized config will replace script defaults in a later phase.
+  purpose: EBSD inference migration wrapper with explicit parameters.

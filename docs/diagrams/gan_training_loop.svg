@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="520" viewBox="0 0 1000 520" role="img" aria-labelledby="title desc">
+  <title id="title">GAN training loop</title>
+  <desc id="desc">Generator creates translated images, discriminator compares real and generated images, losses update both networks.</desc>
+  <defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#2a9d8f"/><stop offset="100%" stop-color="#176b87"/></linearGradient>
+    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ffd166"/><stop offset="100%" stop-color="#f2b84b"/></linearGradient>
+    <linearGradient id="g3" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#102a43"/><stop offset="100%" stop-color="#1b4965"/></linearGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="7" stdDeviation="7" flood-color="#102a43" flood-opacity="0.2"/></filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#24566f"/></marker>
+    <style>.box{rx:20;filter:url(#shadow)}.label{font:700 18px Segoe UI,Arial;fill:white}.dark{font:700 18px Segoe UI,Arial;fill:#102a43}.small{font:500 13px Segoe UI,Arial;fill:#234}.line{stroke:#24566f;stroke-width:3;fill:none;marker-end:url(#arrow)}.title{font:700 28px Segoe UI,Arial;fill:#102a43}</style>
+  </defs>
+  <rect width="1000" height="520" fill="#f7fbfd"/>
+  <text x="42" y="52" class="title">GAN Training Loop</text>
+  <rect x="70" y="130" width="180" height="88" fill="url(#g2)" class="box"/>
+  <text x="111" y="166" class="dark">Input Image</text>
+  <text x="110" y="192" class="small">microscopy domain</text>
+  <rect x="330" y="130" width="190" height="88" fill="url(#g1)" class="box"/>
+  <text x="377" y="166" class="label">Generator G</text>
+  <text x="374" y="192" class="label">translation</text>
+  <rect x="610" y="130" width="190" height="88" fill="url(#g3)" class="box"/>
+  <text x="651" y="166" class="label">Generated</text>
+  <text x="653" y="192" class="label">Image</text>
+  <rect x="610" y="315" width="190" height="88" fill="url(#g2)" class="box"/>
+  <text x="656" y="351" class="dark">Real Target</text>
+  <text x="664" y="377" class="small">domain sample</text>
+  <rect x="820" y="220" width="150" height="105" fill="url(#g3)" class="box"/>
+  <text x="842" y="260" class="label">Discriminator</text>
+  <text x="884" y="286" class="label">D</text>
+  <path class="line" d="M250 174 H330"/>
+  <path class="line" d="M520 174 H610"/>
+  <path class="line" d="M800 174 C850 174 850 220 875 220"/>
+  <path class="line" d="M800 359 C850 359 850 325 875 325"/>
+  <path class="line" d="M895 220 C895 82 420 82 420 130"/>
+  <text x="470" y="92" class="small">adversarial gradients update G</text>
+  <path class="line" d="M895 325 C895 445 710 455 425 455 C250 455 160 330 160 218"/>
+  <text x="360" y="478" class="small">losses guide generator and discriminator during training</text>
+</svg>

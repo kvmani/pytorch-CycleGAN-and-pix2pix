@@ -4,6 +4,7 @@ dataset_id: paired_microscopy_default
 task_type: paired_translation
 source_roots:
   - ./datasets/source
+output_dataset_dir: artifacts/prepared_datasets/paired_microscopy_default
 split_policy:
   train_ratio: 0.8
   val_ratio: 0.1
@@ -15,4 +16,5 @@ preprocessing:
   paired_storage: concatenated_ab
 leakage_group_policy:
   mode: folder_or_specimen_id
+  regex: ""
   required: true

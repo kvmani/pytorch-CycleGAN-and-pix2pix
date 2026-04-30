@@ -14,9 +14,17 @@ pytorch-CycleGAN-and-pix2pix/
     evaluation/
     registry_validation.default.yml
   docs/
+    conf.py
+    index.md
+    _static/
     adr/
     diagrams/
     tutorials/
+    teaching_gan_principles.md
+    gan_formulations.md
+    metrics_formulations.md
+    model_architectures.md
+    learning_terms.md
   examples/
   frozen_checkpoints/
     model_registry.json
@@ -70,6 +78,7 @@ microi2i validate-registry
 The first layer establishes:
 
 - Documentation contracts.
+- Sphinx documentation with equations and SVG diagrams.
 - Config parsing.
 - Manifest generation.
 - Registry validation.

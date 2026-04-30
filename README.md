@@ -12,6 +12,7 @@ Start here:
 - Target architecture: [docs/repository_blueprint.md](docs/repository_blueprint.md)
 - Provenance standards: [docs/code_provenance_and_manifests.md](docs/code_provenance_and_manifests.md)
 - Commands: [docs/usage_commands.md](docs/usage_commands.md)
+- Sphinx documentation landing page: [docs/index.md](docs/index.md)
 
 Example commands:
 
@@ -20,6 +21,13 @@ python scripts/microi2i_cli.py models --details
 python scripts/microi2i_cli.py validate-registry
 python scripts/microi2i_cli.py train --config configs/train/pix2pix.default.yml --dry-run
 python scripts/microi2i_cli.py infer --config configs/inference/folder.default.yml --dry-run
+```
+
+Build the documentation site:
+
+```bash
+pip install -r requirements-docs.txt
+python scripts/build_docs.py --html-only
 ```
 
 The original upstream README content is retained below during migration so the current CycleGAN/pix2pix behavior remains understandable while workflows are absorbed into `src/microi2i/`.

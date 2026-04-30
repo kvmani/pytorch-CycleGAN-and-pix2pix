@@ -5,25 +5,46 @@
 ### Paired pix2pix
 
 Use paired input/target images where each sample has a known correspondence.
-The initial accepted layout is inherited from pix2pix:
+The initial accepted source layout may be nested by specimen or acquisition group:
 
 ```text
-dataset/
+source/
+  specimen_001/pair_001.png
+  specimen_001/pair_002.png
+  specimen_002/pair_003.png
+```
+
+The phase-2 materializer copies images into pix2pix aligned layout:
+
+```text
+prepared_dataset/
   train/
   val/
   test/
 ```
 
-Each paired image may be stored as concatenated `{A,B}` images or as a future manifest-backed pair list.
+Each paired image is currently expected to already be in pix2pix concatenated `{A,B}` form.
+Future phases may add separate input/target pair-list materialization.
 
 ### Unpaired CycleGAN
 
 Use separate domains:
 
 ```text
-dataset/
+domain_a/
+  specimen_001/a_001.png
+domain_b/
+  specimen_001/b_001.png
+```
+
+The materializer writes CycleGAN layout:
+
+```text
+prepared_dataset/
   trainA/
   trainB/
+  valA/
+  valB/
   testA/
   testB/
 ```
@@ -62,6 +83,9 @@ Validation and test splits must avoid leakage across:
 - Same scan series.
 - Same augmentation family.
 - Same experiment batch, when known.
+
+The current split implementation groups samples by parent folder by default.
+Set `leakage_group_policy.regex` to extract a specimen or scan ID from file paths when folder grouping is insufficient.
 
 ## File Formats
 

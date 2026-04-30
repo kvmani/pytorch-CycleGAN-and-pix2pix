@@ -9,6 +9,11 @@ from typing import Any
 import numpy as np
 from PIL import Image
 
+try:
+    from skimage.metrics import structural_similarity
+except Exception:  # optional dependency
+    structural_similarity = None
+
 
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp"}
 
@@ -57,12 +62,16 @@ def evaluate_paired_directories(predictions_dir: str | Path, targets_dir: str | 
         diff = pred - target
         mae = float(np.mean(np.abs(diff)))
         rmse = float(sqrt(float(np.mean(diff * diff))))
+        ssim = None
+        if structural_similarity is not None and min(pred.shape[:2]) >= 7:
+            ssim = float(structural_similarity(pred, target, channel_axis=2, data_range=255.0))
         rows.append(
             {
                 "sample": pred_path.name,
                 "mae": mae,
                 "rmse": rmse,
                 "psnr": _psnr(rmse),
+                "ssim": ssim,
             }
         )
 
@@ -86,5 +95,10 @@ def evaluate_paired_directories(predictions_dir: str | Path, targets_dir: str | 
             "mae_mean": float(np.mean([row["mae"] for row in rows])),
             "rmse_mean": float(np.mean([row["rmse"] for row in rows])),
             "psnr_mean": float(np.mean([row["psnr"] for row in rows if np.isfinite(row["psnr"])])),
+            "ssim_mean": (
+                float(np.mean([row["ssim"] for row in rows if row["ssim"] is not None]))
+                if any(row["ssim"] is not None for row in rows)
+                else None
+            ),
         },
     }
