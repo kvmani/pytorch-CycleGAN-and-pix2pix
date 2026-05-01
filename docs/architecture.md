@@ -7,6 +7,14 @@ MicroI2I separates scientific workflow concerns into small modules so runs are r
 :class: architecture-diagram
 ```
 
+
+```{image} diagrams/microi2i_scientific_workflow.svg
+:alt: Scientific workflow connecting data QA, training, inference, evaluation, registry, manifests, and documentation
+:class: architecture-diagram
+```
+
+The workflow layer treats every model run as scientific evidence: inputs are inspected, execution is configured, outputs are packaged, metrics are computed, and promotion decisions are recorded in the registry.
+
 ## Module Roles
 
 - `microi2i.app`: command-line interface and workflow orchestration.

@@ -2,6 +2,13 @@
 
 This roadmap moves MicroI2I beyond feature parity with the original CycleGAN/pix2pix repository into a production-grade scientific platform for microscopy image-to-image translation.
 
+```{image} diagrams/microi2i_roadmap_status.svg
+:alt: MicroI2I roadmap status across governance, data operations, training, inference, evaluation, registry, model backends, documentation, and automation
+:class: architecture-diagram
+```
+
+As of this branch, the project is roughly 60% through the planned restructure: the package-first CLI, provenance spine, dataset QA, evaluation reports, registry lifecycle, and legacy model adapters are usable, while new model families and production CI remain the highest-leverage unfinished areas.
+
 ## Phase 1: Governance And Quality Gates
 
 - Enforce repository contracts in `AGENTS.md`.
@@ -69,7 +76,7 @@ band proxies, and multi-run visual comparison dashboards.
 - Require objective promotion criteria and documentation before scientific use.
 
 Current status: registry entries are linked to `model_backend` IDs and validation rejects unknown
-backend names. Remaining work is local overlay registry support and objective promotion-rule checks.
+backend names. Local overlay registry support is implemented. Remaining work is objective promotion-rule checks, model-card completeness checks, and richer registry-to-report traceability.
 
 ## Phase 7: New Model And Algorithm Frontiers
 
@@ -98,7 +105,8 @@ and then new research adapters such as CUT or restoration baselines.
 
 Current status: `scripts/smoke_gate.py` provides a dry-run smoke gate and an opt-in real CPU training
 mode. The local `scripts/check_repo.py --include-smoke` path runs this smoke gate after tests,
-registry validation, and docs.
+registry validation, and docs. Remaining work is hosted CI, lint/type gates, and dependency-normalized
+CPU smoke execution for environments with optional legacy packages installed.
 
 ## Definition Of Done
 

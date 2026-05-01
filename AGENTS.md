@@ -81,9 +81,9 @@ Mandatory documentation expectations:
 - Use MyST Markdown with MathJax-compatible LaTeX for equations.
 - Include mathematical formulations for losses, metrics, preprocessing transforms, and scientific calculations when relevant.
 - Explain key ML and microscopy terms for students and interdisciplinary collaborators.
-- Add or update SVG diagrams under `docs/diagrams/` for architecture, model structure, workflows, and data flow when behavior is non-trivial.
+- Add or update PyTex-standard SVG diagrams under `docs/diagrams/` for architecture, model structure, workflows, and data flow when behavior is non-trivial.
 - SVG diagrams must use professional visual styling: readable typography, rounded boxes, consistent spacing, gradients where helpful, and a coherent color palette.
-- Avoid relying on inline Mermaid as final publication documentation; use committed SVG diagrams for stable HTML/PDF output.
+- Avoid relying on inline Mermaid as final publication documentation; use committed PyTex-style SVG diagrams for stable HTML/PDF output.
 - Documentation must cover philosophy and scientific assumptions, not only command syntax.
 - Any new model family must include architecture explanation, original citation, local modifications, assumptions, failure modes, and validation guidance.
 - Any new metric must include its mathematical formula, symbol definitions, interpretation, and limitations.

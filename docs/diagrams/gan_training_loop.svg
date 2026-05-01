@@ -1,37 +1,38 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="520" viewBox="0 0 1000 520" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680" role="img" aria-labelledby="title desc">
   <title id="title">GAN training loop</title>
-  <desc id="desc">Generator creates translated images, discriminator compares real and generated images, losses update both networks.</desc>
+  <desc id="desc">PyTex-style diagram of generator, discriminator, adversarial loss, reconstruction or supervised loss, and optimizer updates.</desc>
   <defs>
-    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#2a9d8f"/><stop offset="100%" stop-color="#176b87"/></linearGradient>
-    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ffd166"/><stop offset="100%" stop-color="#f2b84b"/></linearGradient>
-    <linearGradient id="g3" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#102a43"/><stop offset="100%" stop-color="#1b4965"/></linearGradient>
-    <filter id="shadow"><feDropShadow dx="0" dy="7" stdDeviation="7" flood-color="#102a43" flood-opacity="0.2"/></filter>
-    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#24566f"/></marker>
-    <style>.box{rx:20;filter:url(#shadow)}.label{font:700 18px Segoe UI,Arial;fill:white}.dark{font:700 18px Segoe UI,Arial;fill:#102a43}.small{font:500 13px Segoe UI,Arial;fill:#234}.line{stroke:#24566f;stroke-width:3;fill:none;marker-end:url(#arrow)}.title{font:700 28px Segoe UI,Arial;fill:#102a43}</style>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#fbfdff"/><stop offset="1" stop-color="#eef6ff"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#07122f" flood-opacity="0.14"/></filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M2,2 L10,6 L2,10 Z" fill="#07122f"/></marker>
+    <marker id="purpleArrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M2,2 L10,6 L2,10 Z" fill="#7c3aed"/></marker>
+    <style>
+      text{font-family:Arial, Helvetica, sans-serif}.title{font-size:42px;font-weight:700;fill:#07122f}.subtitle{font-size:20px;fill:#40506f}.label{font-size:18px;font-weight:700;fill:#07122f}.body{font-size:14px;fill:#40506f}.card{rx:8;filter:url(#shadow);stroke-width:2}.arrow{fill:none;stroke:#07122f;stroke-width:2.4;marker-end:url(#arrow)}.grad{fill:none;stroke:#7c3aed;stroke-width:2.4;stroke-dasharray:8 6;marker-end:url(#purpleArrow)}
+    </style>
   </defs>
-  <rect width="1000" height="520" fill="#f7fbfd"/>
-  <text x="42" y="52" class="title">GAN Training Loop</text>
-  <rect x="70" y="130" width="180" height="88" fill="url(#g2)" class="box"/>
-  <text x="111" y="166" class="dark">Input Image</text>
-  <text x="110" y="192" class="small">microscopy domain</text>
-  <rect x="330" y="130" width="190" height="88" fill="url(#g1)" class="box"/>
-  <text x="377" y="166" class="label">Generator G</text>
-  <text x="374" y="192" class="label">translation</text>
-  <rect x="610" y="130" width="190" height="88" fill="url(#g3)" class="box"/>
-  <text x="651" y="166" class="label">Generated</text>
-  <text x="653" y="192" class="label">Image</text>
-  <rect x="610" y="315" width="190" height="88" fill="url(#g2)" class="box"/>
-  <text x="656" y="351" class="dark">Real Target</text>
-  <text x="664" y="377" class="small">domain sample</text>
-  <rect x="820" y="220" width="150" height="105" fill="url(#g3)" class="box"/>
-  <text x="842" y="260" class="label">Discriminator</text>
-  <text x="884" y="286" class="label">D</text>
-  <path class="line" d="M250 174 H330"/>
-  <path class="line" d="M520 174 H610"/>
-  <path class="line" d="M800 174 C850 174 850 220 875 220"/>
-  <path class="line" d="M800 359 C850 359 850 325 875 325"/>
-  <path class="line" d="M895 220 C895 82 420 82 420 130"/>
-  <text x="470" y="92" class="small">adversarial gradients update G</text>
-  <path class="line" d="M895 325 C895 445 710 455 425 455 C250 455 160 330 160 218"/>
-  <text x="360" y="478" class="small">losses guide generator and discriminator during training</text>
+  <rect width="1200" height="680" fill="url(#bg)"/>
+  <text x="600" y="60" text-anchor="middle" class="title">GAN Training Loop</text>
+  <text x="600" y="94" text-anchor="middle" class="subtitle">Generator learns image translation while discriminator enforces realism and scientific losses constrain meaning</text>
+  <rect x="510" y="116" width="180" height="5" rx="3" fill="#2563eb"/><rect x="600" y="116" width="90" height="5" rx="3" fill="#7c3aed"/>
+
+  <rect x="70" y="190" width="190" height="112" class="card" fill="#fffbeb" stroke="#f59e0b"/>
+  <text x="105" y="228" class="label">Input Image</text><text x="105" y="254" class="body">source microscopy domain</text><text x="105" y="278" class="body">A: low quality / source</text>
+  <rect x="335" y="190" width="210" height="112" class="card" fill="#eff6ff" stroke="#2563eb"/>
+  <text x="368" y="228" class="label">Generator G</text><text x="368" y="254" class="body">translates source to target</text><text x="368" y="278" class="body">learns task-specific mapping</text>
+  <rect x="620" y="190" width="200" height="112" class="card" fill="#ecfdf5" stroke="#16a34a"/>
+  <text x="654" y="228" class="label">Generated Image</text><text x="654" y="254" class="body">prediction y_hat</text><text x="654" y="278" class="body">candidate scientific output</text>
+  <rect x="620" y="405" width="200" height="112" class="card" fill="#fffbeb" stroke="#f59e0b"/>
+  <text x="662" y="443" class="label">Real Target</text><text x="662" y="469" class="body">paired target or</text><text x="662" y="493" class="body">target-domain sample</text>
+  <rect x="910" y="295" width="210" height="132" class="card" fill="#f5f3ff" stroke="#7c3aed"/>
+  <text x="945" y="336" class="label">Discriminator D</text><text x="945" y="362" class="body">real vs generated score</text><text x="945" y="386" class="body">PatchGAN in pix2pix</text><text x="945" y="410" class="body">domain critic in CycleGAN</text>
+  <path class="arrow" d="M260 246 H335"/><path class="arrow" d="M545 246 H620"/><path class="arrow" d="M820 246 C875 246 875 320 910 320"/><path class="arrow" d="M820 461 C875 461 875 402 910 402"/>
+
+  <rect x="180" y="505" width="270" height="94" class="card" fill="#ffffff" stroke="#2563eb"/>
+  <text x="210" y="540" class="label">Task Losses</text><text x="210" y="566" class="body">L1, cycle consistency, identity</text><text x="210" y="590" class="body">preserve microscopy meaning</text>
+  <rect x="720" y="555" width="270" height="76" class="card" fill="#07122f" stroke="#07122f"/>
+  <text x="750" y="590" class="label" fill="#ffffff">Optimizer Updates</text><text x="750" y="616" class="body" fill="#dbeafe">adjust G and D parameters</text>
+  <path class="arrow" d="M720 517 C620 555 530 555 450 552"/><path class="arrow" d="M1015 427 C1015 510 950 535 900 555"/>
+  <path class="grad" d="M855 555 C690 500 465 455 440 302"/>
+  <path class="grad" d="M855 555 C985 515 1030 470 1015 427"/>
+  <text x="470" y="366" class="body">gradients improve translation and realism</text>
 </svg>

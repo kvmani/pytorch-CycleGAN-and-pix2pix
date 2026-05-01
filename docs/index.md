@@ -3,10 +3,12 @@
 MicroI2I is a scientific microscopy image-to-image translation platform built from the pix2pix and CycleGAN lineage.
 It is intended to support research workflows and teach the principles behind modern generative image translation.
 
-```{image} diagrams/code_architecture.svg
-:alt: MicroI2I module architecture
+```{image} diagrams/microi2i_scientific_workflow.svg
+:alt: MicroI2I scientific workflow from microscopy data to validated model registry
 :class: architecture-diagram
 ```
+
+The site is organized as a working research manual: start with the command workflows, then inspect architecture, scientific validation, and teaching material.
 
 ## Start Here
 

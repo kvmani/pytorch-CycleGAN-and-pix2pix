@@ -1,84 +1,46 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="650" viewBox="0 0 1100 650" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
   <title id="title">MicroI2I code architecture</title>
-  <desc id="desc">Architecture diagram showing CLI, configs, package modules, legacy backends, manifests, and reports.</desc>
+  <desc id="desc">PyTex-style architecture diagram showing CLI, configs, package modules, legacy adapters, manifests, reports, and registry.</desc>
   <defs>
-    <linearGradient id="navy" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#102a43"/>
-      <stop offset="100%" stop-color="#1b4965"/>
-    </linearGradient>
-    <linearGradient id="teal" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#2a9d8f"/>
-      <stop offset="100%" stop-color="#176b87"/>
-    </linearGradient>
-    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#ffd166"/>
-      <stop offset="100%" stop-color="#f2b84b"/>
-    </linearGradient>
-    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#dff3ff"/>
-      <stop offset="100%" stop-color="#bde0fe"/>
-    </linearGradient>
-    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#102a43" flood-opacity="0.18"/>
-    </filter>
-    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-      <path d="M0,0 L0,6 L9,3 z" fill="#24566f"/>
-    </marker>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#fbfdff"/><stop offset="1" stop-color="#eef6ff"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#07122f" flood-opacity="0.14"/></filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M2,2 L10,6 L2,10 Z" fill="#07122f"/></marker>
     <style>
-      .title{font:700 28px Segoe UI,Arial,sans-serif;fill:#102a43}
-      .label{font:700 17px Segoe UI,Arial,sans-serif;fill:white}
-      .dark{font:700 17px Segoe UI,Arial,sans-serif;fill:#102a43}
-      .small{font:500 13px Segoe UI,Arial,sans-serif;fill:#234}
-      .box{rx:18;filter:url(#shadow)}
-      .line{stroke:#24566f;stroke-width:3;fill:none;marker-end:url(#arrow)}
+      text{font-family:Arial, Helvetica, sans-serif}.title{font-size:42px;font-weight:700;fill:#07122f}.subtitle{font-size:20px;fill:#40506f}.label{font-size:18px;font-weight:700;fill:#07122f}.body{font-size:14px;fill:#40506f}.small{font-size:13px;fill:#40506f}.card{rx:8;filter:url(#shadow);stroke-width:2}.arrow{fill:none;stroke:#07122f;stroke-width:2.4;marker-end:url(#arrow)}.dash{fill:none;stroke:#7c3aed;stroke-width:2.2;stroke-dasharray:7 6;marker-end:url(#arrow)}
     </style>
   </defs>
-  <rect width="1100" height="650" fill="#f7fbfd"/>
-  <text x="50" y="55" class="title">MicroI2I Package Architecture</text>
-  <rect x="50" y="95" width="210" height="86" rx="18" fill="url(#navy)" class="box"/>
-  <text x="82" y="130" class="label">microi2i CLI</text>
-  <text x="82" y="155" class="label">train / infer / eval</text>
-  <rect x="330" y="95" width="210" height="86" rx="18" fill="url(#gold)" class="box"/>
-  <text x="365" y="132" class="dark">YAML Configs</text>
-  <text x="365" y="156" class="small">--set dotted overrides</text>
-  <rect x="610" y="95" width="210" height="86" rx="18" fill="url(#teal)" class="box"/>
-  <text x="645" y="132" class="label">Typed Contracts</text>
-  <text x="645" y="156" class="label">validated workflows</text>
-  <rect x="865" y="95" width="185" height="86" rx="18" fill="url(#blue)" class="box"/>
-  <text x="895" y="132" class="dark">Manifest Layer</text>
-  <text x="895" y="156" class="small">run + artifacts</text>
-  <path class="line" d="M260 138 H330"/>
-  <path class="line" d="M540 138 H610"/>
-  <path class="line" d="M820 138 H865"/>
-  <rect x="85" y="265" width="200" height="92" rx="18" fill="url(#blue)" class="box"/>
-  <text x="123" y="300" class="dark">DataOps</text>
-  <text x="123" y="324" class="small">paired / unpaired</text>
-  <text x="123" y="344" class="small">deterministic splits</text>
-  <rect x="335" y="265" width="200" height="92" rx="18" fill="url(#blue)" class="box"/>
-  <text x="370" y="300" class="dark">Training</text>
-  <text x="370" y="324" class="small">legacy backend now</text>
-  <text x="370" y="344" class="small">package orchestration</text>
-  <rect x="585" y="265" width="200" height="92" rx="18" fill="url(#blue)" class="box"/>
-  <text x="620" y="300" class="dark">Inference</text>
-  <text x="620" y="324" class="small">prediction package</text>
-  <text x="620" y="344" class="small">HTML/JSON report</text>
-  <rect x="835" y="265" width="200" height="92" rx="18" fill="url(#blue)" class="box"/>
-  <text x="870" y="300" class="dark">Evaluation</text>
-  <text x="870" y="324" class="small">MAE RMSE PSNR</text>
-  <text x="870" y="344" class="small">SSIM optional</text>
-  <path class="line" d="M715 181 C715 225 185 220 185 265"/>
-  <path class="line" d="M715 181 C715 225 435 220 435 265"/>
-  <path class="line" d="M715 181 C715 225 685 220 685 265"/>
-  <path class="line" d="M715 181 C715 225 935 220 935 265"/>
-  <rect x="210" y="455" width="260" height="92" rx="18" fill="url(#navy)" class="box"/>
-  <text x="252" y="492" class="label">Legacy Model Internals</text>
-  <text x="252" y="518" class="label">train.py / test.py</text>
-  <rect x="625" y="455" width="260" height="92" rx="18" fill="url(#teal)" class="box"/>
-  <text x="672" y="492" class="label">Scientific Outputs</text>
-  <text x="672" y="518" class="label">reports + manifests</text>
-  <path class="line" d="M435 357 C435 405 340 405 340 455"/>
-  <path class="line" d="M685 357 C685 405 340 405 340 455"/>
-  <path class="line" d="M285 311 H335"/>
-  <path class="line" d="M785 311 H835"/>
-  <path class="line" d="M470 501 H625"/>
+  <rect width="1200" height="720" fill="url(#bg)"/>
+  <text x="600" y="60" text-anchor="middle" class="title">MicroI2I Package Architecture</text>
+  <text x="600" y="94" text-anchor="middle" class="subtitle">CLI-first scientific workflows with validated configs, adapters, manifests, and reviewable outputs</text>
+  <rect x="510" y="116" width="180" height="5" rx="3" fill="#2563eb"/><rect x="600" y="116" width="90" height="5" rx="3" fill="#7c3aed"/>
+
+  <rect x="70" y="155" width="220" height="112" class="card" fill="#ffffff" stroke="#2563eb"/>
+  <text x="95" y="190" class="label">User Interface</text><text x="95" y="216" class="body">microi2i CLI</text><text x="95" y="240" class="body">train / infer / evaluate</text>
+  <rect x="350" y="155" width="220" height="112" class="card" fill="#ffffff" stroke="#7c3aed"/>
+  <text x="375" y="190" class="label">Configuration</text><text x="375" y="216" class="body">YAML presets</text><text x="375" y="240" class="body">--set dotted overrides</text>
+  <rect x="630" y="155" width="220" height="112" class="card" fill="#ffffff" stroke="#16a34a"/>
+  <text x="655" y="190" class="label">Typed Contracts</text><text x="655" y="216" class="body">validated workflow objects</text><text x="655" y="240" class="body">runtime/device policy</text>
+  <rect x="910" y="155" width="220" height="112" class="card" fill="#ffffff" stroke="#f59e0b"/>
+  <text x="935" y="190" class="label">Provenance</text><text x="935" y="216" class="body">resolved configs</text><text x="935" y="240" class="body">run + artifact manifests</text>
+  <path class="arrow" d="M290 211 H350"/><path class="arrow" d="M570 211 H630"/><path class="arrow" d="M850 211 H910"/>
+
+  <rect x="80" y="350" width="180" height="118" class="card" fill="#eff6ff" stroke="#2563eb"/>
+  <text x="108" y="386" class="label">DataOps</text><text x="108" y="412" class="small">prepare-dataset</text><text x="108" y="434" class="small">data-qa</text><text x="108" y="456" class="small">leakage controls</text>
+  <rect x="300" y="350" width="180" height="118" class="card" fill="#f5f3ff" stroke="#7c3aed"/>
+  <text x="328" y="386" class="label">Training</text><text x="328" y="412" class="small">adapter launch</text><text x="328" y="434" class="small">loss parsing</text><text x="328" y="456" class="small">smoke modes</text>
+  <rect x="520" y="350" width="180" height="118" class="card" fill="#ecfdf5" stroke="#16a34a"/>
+  <text x="548" y="386" class="label">Inference</text><text x="548" y="412" class="small">input manifests</text><text x="548" y="434" class="small">review panels</text><text x="548" y="456" class="small">batch summaries</text>
+  <rect x="740" y="350" width="180" height="118" class="card" fill="#fffbeb" stroke="#f59e0b"/>
+  <text x="768" y="386" class="label">Evaluation</text><text x="768" y="412" class="small">MAE/RMSE/PSNR</text><text x="768" y="434" class="small">SSIM + microscopy</text><text x="768" y="456" class="small">outlier review</text>
+  <rect x="960" y="350" width="180" height="118" class="card" fill="#fff1f2" stroke="#e11d48"/>
+  <text x="988" y="386" class="label">Registry</text><text x="988" y="412" class="small">lifecycle states</text><text x="988" y="434" class="small">local overlays</text><text x="988" y="456" class="small">promotion evidence</text>
+
+  <path class="arrow" d="M740 267 C740 310 170 310 170 350"/><path class="arrow" d="M740 267 C740 310 390 310 390 350"/><path class="arrow" d="M740 267 C740 310 610 310 610 350"/><path class="arrow" d="M740 267 C740 310 830 310 830 350"/><path class="arrow" d="M1020 267 V350"/>
+
+  <rect x="250" y="570" width="250" height="92" class="card" fill="#07122f" stroke="#07122f"/>
+  <text x="285" y="606" class="label" fill="#ffffff">Legacy Model Internals</text><text x="285" y="632" class="body" fill="#dbeafe">train.py / test.py via adapters</text>
+  <rect x="700" y="570" width="250" height="92" class="card" fill="#07122f" stroke="#07122f"/>
+  <text x="735" y="606" class="label" fill="#ffffff">Scientific Run Package</text><text x="735" y="632" class="body" fill="#dbeafe">reports, manifests, figures</text>
+  <path class="dash" d="M390 468 C390 520 375 520 375 570"/><path class="dash" d="M610 468 C610 520 375 520 375 570"/>
+  <path class="arrow" d="M700 616 H500"/><path class="arrow" d="M830 468 C830 520 825 520 825 570"/><path class="arrow" d="M1050 468 C1050 535 950 535 900 570"/>
 </svg>
