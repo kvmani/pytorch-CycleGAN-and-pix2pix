@@ -45,7 +45,7 @@ training:
     - --direction
     - BtoA
     - --netG
-    - unet_128
+    - resnet_6blocks
     - --gpu_ids
     - "-1"
 notes:
