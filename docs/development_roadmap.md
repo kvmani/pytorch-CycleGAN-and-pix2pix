@@ -64,8 +64,7 @@ metric-aware best/worst review panels.
 - Document every metric with formula, interpretation, and limitations.
 
 Current status: paired evaluation now emits best/worst outlier CSV and HTML review panels based on
-a configurable ranking metric. Remaining work is metric-family grouping, EBSD/Kikuchi-specific
-band proxies, and multi-run visual comparison dashboards.
+a configurable ranking metric. EBSD/Kikuchi band contrast, band sharpness, orientation coherence proxies, and metric-family grouping are implemented. Multi-run JSON comparison and HTML review dashboards are implemented. Remaining work is deeper cross-run image-panel comparison.
 
 ## Phase 6: Model Registry And Lifecycle
 
@@ -73,21 +72,21 @@ band proxies, and multi-run visual comparison dashboards.
 - Add `microi2i promote-model` and `microi2i compare-runs`.
 - Track dataset manifest, metrics, intended use, limitations, and promotion decision evidence.
 - Support a git-ignored local overlay registry for machine-specific checkpoint paths.
-- Require objective promotion criteria and documentation before scientific use.
+- Record manual promotion decisions with notes, reviewed metrics, intended use, and limitations; no automated promotion threshold is required.
 
 Current status: registry entries are linked to `model_backend` IDs and validation rejects unknown
-backend names. Local overlay registry support is implemented. Remaining work is objective promotion-rule checks, model-card completeness checks, and richer registry-to-report traceability.
+backend names. Local overlay registry support is implemented. Remaining work is model-card completeness checks, manual review evidence capture, and richer registry-to-report traceability.
 
 ## Phase 7: New Model And Algorithm Frontiers
 
 - Add a common model-backend interface for train, infer, evaluate, and metadata export.
 - Preserve pix2pix and CycleGAN as first backends.
-- Add future adapters for CUT, Pix2PixHD, ESRGAN/Real-ESRGAN-style super-resolution, diffusion/one-step translation, and non-GAN restoration baselines.
+- Add future GAN-centered adapters for CUT, Pix2PixHD, ESRGAN/Real-ESRGAN-style super-resolution, and diffusion or one-step image-translation approaches when they fit the GAN/image-translation research direction.
 - Each backend requires config presets, docs, tests, registry support, and failure-mode notes.
 
 Current status: the CLI-only model execution adapter layer has begun with `legacy_pix2pix` and
 `legacy_cyclegan`. The next extensions should add native adapter tests, backend registry metadata,
-and then new research adapters such as CUT or restoration baselines.
+and then new research adapters such as CUT, Pix2PixHD, ESRGAN, or diffusion-assisted image translation.
 
 ## Phase 8: Teaching-Grade Documentation
 

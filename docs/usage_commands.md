@@ -275,7 +275,9 @@ It reports fidelity metrics, optional SSIM, and microscopy-oriented structure pr
 - contrast-to-noise proxy delta
 - high-frequency energy ratio
 - Laplacian sharpness ratio
+- EBSD/Kikuchi band contrast delta, band sharpness ratio, and orientation coherence delta
 
+The JSON report also includes `metric_families` groups for fidelity, structure, microscopy, and EBSD/Kikuchi review.
 Evaluation also writes `evaluation_outliers.csv` and `evaluation_review.html` when same-named pairs
 are available. Configure the outlier ranking:
 
@@ -288,10 +290,10 @@ review:
 
 ## Compare Runs
 
-Compare two or more evaluation reports by an aggregate metric:
+Compare two or more evaluation reports by an aggregate metric and optionally write a manual review dashboard:
 
 ```bash
-microi2i compare-runs --reports run_a/report.json run_b/report.json --metric mae_mean
+microi2i compare-runs --reports run_a/report.json run_b/report.json --metric mae_mean --output artifacts/comparisons/mae.json --html-output artifacts/comparisons/mae.html
 ```
 
 For metrics where larger is better:
@@ -310,6 +312,7 @@ microi2i promote-model \
   --status candidate \
   --metric mae_mean=5.2 \
   --note "Candidate after microscopy validation set review" \
+  --reviewer "manual-reviewer-name" \
   --dry-run
 ```
 

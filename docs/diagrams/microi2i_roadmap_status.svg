@@ -27,18 +27,18 @@
   <text x="935" y="194" class="label">4. Inference</text><text x="935" y="220" class="body">folder/single/manifest</text><text x="935" y="244" class="body">batch + reference review</text><text x="935" y="268" class="label" fill="#92400e">60% complete</text>
 
   <rect x="70" y="345" width="220" height="124" class="card" fill="#fffbeb" stroke="#f59e0b"/>
-  <text x="95" y="379" class="label">5. Evaluation</text><text x="95" y="405" class="body">metrics + outlier panels</text><text x="95" y="429" class="body">needs EBSD proxies</text><text x="95" y="453" class="label" fill="#92400e">55% complete</text>
+  <text x="95" y="379" class="label">5. Evaluation</text><text x="95" y="405" class="body">metrics + outlier panels</text><text x="95" y="429" class="body">EBSD proxies added</text><text x="95" y="453" class="label" fill="#92400e">60% complete</text>
   <rect x="350" y="345" width="220" height="124" class="card" fill="#fffbeb" stroke="#f59e0b"/>
-  <text x="375" y="379" class="label">6. Registry</text><text x="375" y="405" class="body">lifecycle + overlays</text><text x="375" y="429" class="body">needs promotion rules</text><text x="375" y="453" class="label" fill="#92400e">60% complete</text>
+  <text x="375" y="379" class="label">6. Registry</text><text x="375" y="405" class="body">lifecycle + overlays</text><text x="375" y="429" class="body">needs review evidence</text><text x="375" y="453" class="label" fill="#92400e">60% complete</text>
   <rect x="630" y="345" width="220" height="124" class="card" fill="#eff6ff" stroke="#2563eb"/>
-  <text x="655" y="379" class="label">7. New Backends</text><text x="655" y="405" class="body">legacy adapters exist</text><text x="655" y="429" class="body">needs baseline/CUT/etc.</text><text x="655" y="453" class="label" fill="#1d4ed8">25% complete</text>
+  <text x="655" y="379" class="label">7. New Backends</text><text x="655" y="405" class="body">legacy adapters exist</text><text x="655" y="429" class="body">needs CUT/ESRGAN/etc.</text><text x="655" y="453" class="label" fill="#1d4ed8">25% complete</text>
   <rect x="910" y="345" width="220" height="124" class="card" fill="#dcfce7" stroke="#16a34a"/>
   <text x="935" y="379" class="label">8. Teaching Docs</text><text x="935" y="405" class="body">Sphinx, formulas, SVG</text><text x="935" y="429" class="body">needs more tutorials</text><text x="935" y="453" class="label" fill="#166534">60% complete</text>
 
   <rect x="350" y="540" width="220" height="124" class="card" fill="#eff6ff" stroke="#2563eb"/>
   <text x="375" y="574" class="label">9. Automation</text><text x="375" y="600" class="body">check_repo + smoke gate</text><text x="375" y="624" class="body">needs CI workflow</text><text x="375" y="648" class="label" fill="#1d4ed8">45% complete</text>
   <rect x="630" y="540" width="300" height="124" class="card" fill="#f5f3ff" stroke="#7c3aed"/>
-  <text x="655" y="574" class="label">Next Focus</text><text x="655" y="600" class="body">1. CPU smoke dependencies</text><text x="655" y="624" class="body">2. Promotion rules</text><text x="655" y="648" class="body">3. Baseline/CUT backend</text>
+  <text x="655" y="574" class="label">Next Focus</text><text x="655" y="600" class="body">1. CPU smoke dependencies</text><text x="655" y="624" class="body">2. Model-card evidence</text><text x="655" y="648" class="body">3. CUT/ESRGAN backend</text>
   <path class="arrow" d="M290 222 H350"/><path class="arrow" d="M570 222 H630"/><path class="arrow" d="M850 222 H910"/>
   <path class="arrow" d="M180 284 V345"/><path class="arrow" d="M460 284 V345"/><path class="arrow" d="M740 284 V345"/><path class="arrow" d="M1020 284 V345"/>
   <path class="arrow" d="M570 602 H630"/>

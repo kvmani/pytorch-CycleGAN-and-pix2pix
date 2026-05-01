@@ -25,6 +25,7 @@ from microi2i.plugins.registry import (
     save_model_registry,
     update_model_status,
     validate_model_registry,
+    write_run_comparison_html,
 )
 from microi2i.training.legacy_runner import (
     build_training_preflight,
@@ -495,6 +496,7 @@ def cmd_promote_model(args: argparse.Namespace) -> int:
         model_id=args.model_id,
         status=args.status,
         note=args.note,
+        reviewer=args.reviewer,
         metrics=metrics,
     )
     errors = validate_model_registry(updated)
@@ -522,6 +524,9 @@ def cmd_compare_runs(args: argparse.Namespace) -> int:
         print(str(output_path))
     else:
         print(json.dumps(report, indent=2, sort_keys=True))
+    if args.html_output:
+        html_path = write_run_comparison_html(report, _repo_path(args.html_output))
+        print(str(html_path))
     return 0
 
 
@@ -580,6 +585,7 @@ def build_parser() -> argparse.ArgumentParser:
     promote.add_argument("--model-id", required=True)
     promote.add_argument("--status", required=True, choices=["smoke", "candidate", "promoted", "deprecated"])
     promote.add_argument("--note", default="")
+    promote.add_argument("--reviewer", default="")
     promote.add_argument("--metric", action="append", default=[])
     promote.add_argument("--dry-run", action="store_true")
     promote.set_defaults(func=cmd_promote_model)
@@ -590,6 +596,7 @@ def build_parser() -> argparse.ArgumentParser:
     compare.add_argument("--lower-is-better", action="store_true", default=True)
     compare.add_argument("--higher-is-better", action="store_true")
     compare.add_argument("--output", default="")
+    compare.add_argument("--html-output", default="")
     compare.set_defaults(func=cmd_compare_runs)
 
     return parser

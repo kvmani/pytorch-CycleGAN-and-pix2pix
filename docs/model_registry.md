@@ -36,7 +36,7 @@ Metadata should be tracked.
 
 ## Promotion Standard
 
-A model should not be promoted unless it has:
+Promotion is a manual scientific judgment. A model should not be promoted until a reviewer has inspected the evidence package, normally including:
 
 - Reproducible training config.
 - Dataset manifest reference.
@@ -76,14 +76,14 @@ microi2i promote-model \
   --status candidate \
   --metric mae_mean=5.2 \
   --note "Validation report reviewed" \
+  --reviewer "manual-reviewer-name" \
   --dry-run
 ```
 
-Compare evaluation reports before promotion:
+Compare evaluation reports before manual promotion review:
 
 ```bash
 microi2i compare-runs --reports run_a/report.json run_b/report.json --metric mae_mean
 ```
 
-Promotion changes must preserve `lifecycle_history` so future users can reconstruct why a model
-was promoted, deprecated, or held as a candidate.
+Promotion changes must preserve `lifecycle_history`, including note and reviewer fields where available, so future users can reconstruct the manual judgment behind why a model was promoted, deprecated, or held as a candidate. The registry records review notes and evidence only; the promotion decision remains manual.

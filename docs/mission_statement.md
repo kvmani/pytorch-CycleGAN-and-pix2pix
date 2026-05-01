@@ -17,7 +17,7 @@ Researchers and students should be able to:
 - Train pix2pix and CycleGAN models with reproducible configuration.
 - Run inference on single images, folders, and batch datasets.
 - Evaluate outputs with image-quality and scientific-task metrics.
-- Promote useful checkpoints through a documented model registry.
+- Record useful checkpoints through a documented model registry, with promotion handled by manual scientific review.
 - Inspect every run through human-readable reports and machine-readable manifests.
 
 ## Strategic Scope

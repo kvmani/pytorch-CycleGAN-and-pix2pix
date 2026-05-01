@@ -115,6 +115,72 @@ R_{\nabla^2} =
 This proxy helps screen denoising and super-resolution outputs for excessive blur or artificial
 sharpening.
 
+
+## EBSD/Kikuchi Band Contrast Proxy
+
+For a grayscale image, let the gradient magnitude be:
+
+\[
+G(I)=\sqrt{(\partial_x I)^2+(\partial_y I)^2}.
+\]
+
+MicroI2I reports a robust band-contrast proxy:
+
+\[
+B_c(I)=P_{95}(G(I))-P_{50}(G(I))
+\]
+
+and compares prediction and target as:
+
+\[
+\Delta B_c = |B_c(I)-B_c(\hat{I})|.
+\]
+
+Lower values mean the generated image has similar high-gradient band contrast to the reference.
+This is a screening proxy; it does not replace crystallographic indexing quality.
+
+## EBSD/Kikuchi Band Sharpness Ratio
+
+Band sharpness is estimated from high-percentile gradient strength:
+
+\[
+B_s(I)=P_{95}(G(I))
+\]
+
+and reported as:
+
+\[
+R_{B_s}=\frac{B_s(\hat{I})}{B_s(I)}.
+\]
+
+Values below one suggest softened Kikuchi bands. Values far above one may indicate artificial
+sharpening or noise amplification.
+
+## Orientation Coherence Delta
+
+A global structure-tensor proxy measures directional organization in band-like patterns. With
+image derivatives \(I_x\) and \(I_y\):
+
+\[
+J_{xx}=\mathbb{E}[I_x^2],\quad
+J_{yy}=\mathbb{E}[I_y^2],\quad
+J_{xy}=\mathbb{E}[I_xI_y]
+\]
+
+\[
+C_o(I)=
+\frac{\sqrt{(J_{xx}-J_{yy})^2+4J_{xy}^2}}{J_{xx}+J_{yy}+\epsilon}
+\]
+
+MicroI2I reports:
+
+\[
+\Delta C_o = |C_o(I)-C_o(\hat{I})|.
+\]
+
+This helps detect whether a translation changes directional band structure. It is undefined for
+nearly constant images and remains a proxy rather than a full EBSD indexing metric.
+
 ## Scientific Use
 
 Metrics must be interpreted alongside visual review and task-specific downstream checks.

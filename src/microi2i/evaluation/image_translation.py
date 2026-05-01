@@ -17,6 +17,12 @@ except Exception:  # optional dependency
 
 
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp"}
+METRIC_FAMILIES = {
+    "fidelity": ("mae", "rmse", "psnr", "ssim"),
+    "structure": ("gradient_correlation", "edge_mae", "histogram_l1"),
+    "microscopy": ("cnr_proxy_delta", "high_frequency_energy_ratio", "laplacian_sharpness_ratio"),
+    "ebsd_kikuchi": ("ebsd_band_contrast_delta", "ebsd_band_sharpness_ratio", "orientation_coherence_delta"),
+}
 
 
 def _load_image(path: Path) -> np.ndarray:
@@ -76,6 +82,32 @@ def _cnr_proxy(gray: np.ndarray) -> float:
     return float((p95 - p5) / (float(np.std(gray)) + 1e-8))
 
 
+def _ebsd_band_contrast_proxy(gray: np.ndarray) -> float:
+    """Estimate Kikuchi/EBSD band contrast from robust gradient spread."""
+
+    grad = _gradient_magnitude(gray)
+    return float(np.percentile(grad, 95) - np.percentile(grad, 50))
+
+
+def _ebsd_band_sharpness_proxy(gray: np.ndarray) -> float:
+    """Estimate band sharpness from high-percentile edge strength."""
+
+    return float(np.percentile(_gradient_magnitude(gray), 95))
+
+
+def _orientation_coherence_proxy(gray: np.ndarray) -> float | None:
+    """Estimate directional structure coherence from a global structure tensor."""
+
+    gy, gx = np.gradient(gray.astype(np.float32))
+    jxx = float(np.mean(gx * gx))
+    jyy = float(np.mean(gy * gy))
+    jxy = float(np.mean(gx * gy))
+    denom = jxx + jyy
+    if denom <= 1e-12:
+        return None
+    return float(np.sqrt(((jxx - jyy) * (jxx - jyy)) + (4.0 * jxy * jxy)) / denom)
+
+
 def _safe_ratio(numerator: float, denominator: float) -> float | None:
     if abs(denominator) <= 1e-12:
         return None
@@ -101,6 +133,15 @@ def _sample_metrics(pred: np.ndarray, target: np.ndarray) -> dict[str, float | N
     target_high_frequency = float(np.mean(target_grad))
     pred_sharpness = float(np.var(pred_lap))
     target_sharpness = float(np.var(target_lap))
+    pred_band_contrast = _ebsd_band_contrast_proxy(pred_gray)
+    target_band_contrast = _ebsd_band_contrast_proxy(target_gray)
+    pred_band_sharpness = _ebsd_band_sharpness_proxy(pred_gray)
+    target_band_sharpness = _ebsd_band_sharpness_proxy(target_gray)
+    pred_orientation = _orientation_coherence_proxy(pred_gray)
+    target_orientation = _orientation_coherence_proxy(target_gray)
+    orientation_delta = None
+    if pred_orientation is not None and target_orientation is not None:
+        orientation_delta = abs(pred_orientation - target_orientation)
 
     return {
         "mae": mae,
@@ -113,6 +154,9 @@ def _sample_metrics(pred: np.ndarray, target: np.ndarray) -> dict[str, float | N
         "cnr_proxy_delta": abs(_cnr_proxy(pred_gray) - _cnr_proxy(target_gray)),
         "high_frequency_energy_ratio": _safe_ratio(pred_high_frequency, target_high_frequency),
         "laplacian_sharpness_ratio": _safe_ratio(pred_sharpness, target_sharpness),
+        "ebsd_band_contrast_delta": abs(pred_band_contrast - target_band_contrast),
+        "ebsd_band_sharpness_ratio": _safe_ratio(pred_band_sharpness, target_band_sharpness),
+        "orientation_coherence_delta": orientation_delta,
     }
 
 
@@ -123,6 +167,18 @@ def _mean_optional(rows: list[dict[str, Any]], key: str) -> float | None:
     if any(row.get(key) == float("inf") for row in rows):
         return float("inf")
     return None
+
+
+def _family_summary(aggregate: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    families: dict[str, dict[str, Any]] = {}
+    for family, metrics in METRIC_FAMILIES.items():
+        values: dict[str, Any] = {}
+        for metric in metrics:
+            key = f"{metric}_mean"
+            if key in aggregate:
+                values[key] = aggregate[key]
+        families[family] = {"metrics": values, "metric_count": len(values)}
+    return families
 
 
 def evaluate_paired_directories(predictions_dir: str | Path, targets_dir: str | Path) -> dict[str, Any]:
@@ -168,24 +224,30 @@ def evaluate_paired_directories(predictions_dir: str | Path, targets_dir: str | 
             "aggregate": {},
         }
 
+    aggregate = {
+        "sample_count": len(rows),
+        "mae_mean": _mean_optional(rows, "mae"),
+        "rmse_mean": _mean_optional(rows, "rmse"),
+        "psnr_mean": _mean_optional(rows, "psnr"),
+        "ssim_mean": _mean_optional(rows, "ssim"),
+        "gradient_correlation_mean": _mean_optional(rows, "gradient_correlation"),
+        "edge_mae_mean": _mean_optional(rows, "edge_mae"),
+        "histogram_l1_mean": _mean_optional(rows, "histogram_l1"),
+        "cnr_proxy_delta_mean": _mean_optional(rows, "cnr_proxy_delta"),
+        "high_frequency_energy_ratio_mean": _mean_optional(rows, "high_frequency_energy_ratio"),
+        "laplacian_sharpness_ratio_mean": _mean_optional(rows, "laplacian_sharpness_ratio"),
+        "ebsd_band_contrast_delta_mean": _mean_optional(rows, "ebsd_band_contrast_delta"),
+        "ebsd_band_sharpness_ratio_mean": _mean_optional(rows, "ebsd_band_sharpness_ratio"),
+        "orientation_coherence_delta_mean": _mean_optional(rows, "orientation_coherence_delta"),
+    }
+
     return {
         "status": "computed",
         "predictions_dir": str(pred_root),
         "targets_dir": str(target_root),
         "samples": rows,
-        "aggregate": {
-            "sample_count": len(rows),
-            "mae_mean": _mean_optional(rows, "mae"),
-            "rmse_mean": _mean_optional(rows, "rmse"),
-            "psnr_mean": _mean_optional(rows, "psnr"),
-            "ssim_mean": _mean_optional(rows, "ssim"),
-            "gradient_correlation_mean": _mean_optional(rows, "gradient_correlation"),
-            "edge_mae_mean": _mean_optional(rows, "edge_mae"),
-            "histogram_l1_mean": _mean_optional(rows, "histogram_l1"),
-            "cnr_proxy_delta_mean": _mean_optional(rows, "cnr_proxy_delta"),
-            "high_frequency_energy_ratio_mean": _mean_optional(rows, "high_frequency_energy_ratio"),
-            "laplacian_sharpness_ratio_mean": _mean_optional(rows, "laplacian_sharpness_ratio"),
-        },
+        "aggregate": aggregate,
+        "metric_families": _family_summary(aggregate),
     }
 
 

@@ -116,6 +116,7 @@ def update_model_status(
     model_id: str,
     status: str,
     note: str = "",
+    reviewer: str = "",
     metrics: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Return a registry copy with one model lifecycle status updated."""
@@ -138,6 +139,7 @@ def update_model_status(
                     "from_status": record.get("status", ""),
                     "to_status": status,
                     "note": note,
+                    "reviewer": reviewer,
                     "metrics": metrics or {},
                 }
             )
@@ -188,3 +190,35 @@ def compare_run_reports(paths: list[str | Path], *, metric: str, lower_is_better
         "lower_is_better": lower_is_better,
         "ranked": sortable + missing,
     }
+
+
+def write_run_comparison_html(comparison: dict[str, Any], path: str | Path) -> Path:
+    """Write a small HTML dashboard for manual comparison of evaluation reports."""
+
+    output_path = Path(path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    rows = []
+    for index, row in enumerate(comparison.get("ranked", []), start=1):
+        rows.append(
+            "<tr>"
+            f"<td>{index}</td>"
+            f"<td>{row.get('path', '')}</td>"
+            f"<td>{row.get('value', '')}</td>"
+            f"<td>{row.get('sample_count', '')}</td>"
+            f"<td>{row.get('status', '')}</td>"
+            "</tr>"
+        )
+    direction = "lower is better" if comparison.get("lower_is_better", True) else "higher is better"
+    output_path.write_text(
+        "<!doctype html><html><head><meta charset='utf-8'><title>MicroI2I Run Comparison</title>"
+        "<style>body{font-family:Arial,sans-serif;margin:2rem;background:#f8fafc;color:#0f172a}"
+        "table{border-collapse:collapse;width:100%;background:white;border-radius:12px;overflow:hidden}"
+        "th,td{border:1px solid #cbd5e1;padding:.65rem;text-align:left}th{background:#e0f2fe}"
+        ".note{color:#475569}</style></head><body>"
+        f"<h1>Run Comparison</h1><p class='note'>Metric: {comparison.get('metric', '')}; {direction}. "
+        "This dashboard supports manual scientific review and does not promote models automatically.</p>"
+        "<table><thead><tr><th>Rank</th><th>Report</th><th>Metric Value</th><th>Samples</th><th>Status</th></tr></thead>"
+        f"<tbody>{''.join(rows)}</tbody></table></body></html>",
+        encoding="utf-8",
+    )
+    return output_path

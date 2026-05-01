@@ -41,8 +41,7 @@ Each backend must define:
 - validation metrics,
 - known failure modes.
 
-Backends should be compared against simpler baselines when possible.
-GAN-based improvements must be validated scientifically, not only visually.
+GAN-based improvements must be validated scientifically, not only visually. Future model backends should remain aligned with the repository focus on GAN and image-translation research.
 
 ## Before Handoff
 

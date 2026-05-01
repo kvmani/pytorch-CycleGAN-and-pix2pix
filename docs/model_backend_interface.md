@@ -52,5 +52,4 @@ A new backend must:
 - include smoke behavior when computationally feasible,
 - update the model registry documentation and Sphinx docs.
 
-Future candidates include CUT, Pix2PixHD, ESRGAN/Real-ESRGAN adapters, diffusion or one-step
-translation adapters, and non-GAN restoration baselines.
+Future candidates include CUT, Pix2PixHD, ESRGAN/Real-ESRGAN adapters, and diffusion or one-step translation adapters when they support the GAN/image-translation research direction.

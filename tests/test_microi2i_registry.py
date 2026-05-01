@@ -9,6 +9,7 @@ from microi2i.plugins.registry import (
     merge_local_registry_overlay,
     update_model_status,
     validate_model_registry,
+    write_run_comparison_html,
 )
 
 
@@ -38,6 +39,7 @@ def test_update_model_status_records_lifecycle_history() -> None:
         model_id="smoke_pix2pix_unet256",
         status="candidate",
         note="unit test promotion",
+        reviewer="unit-test-reviewer",
         metrics={"mae_mean": 1.25},
     )
 
@@ -45,6 +47,7 @@ def test_update_model_status_records_lifecycle_history() -> None:
     assert record["status"] == "candidate"
     assert record["metrics"]["mae_mean"] == 1.25
     assert record["lifecycle_history"]
+    assert record["lifecycle_history"][-1]["reviewer"] == "unit-test-reviewer"
     assert registry["models"][0]["status"] == "smoke"
 
 
@@ -63,6 +66,21 @@ def test_compare_run_reports_ranks_by_metric(tmp_path) -> None:
     report = compare_run_reports([first, second], metric="mae_mean")
 
     assert report["ranked"][0]["path"] == str(second)
+
+
+def test_write_run_comparison_html_creates_manual_review_dashboard(tmp_path) -> None:
+    report = {
+        "schema_version": "microi2i.run_comparison.v1",
+        "metric": "mae_mean",
+        "lower_is_better": True,
+        "ranked": [{"path": "run_a/report.json", "value": 1.0, "sample_count": 2, "status": "computed"}],
+    }
+
+    path = write_run_comparison_html(report, tmp_path / "comparison.html")
+
+    text = path.read_text(encoding="utf-8")
+    assert "Run Comparison" in text
+    assert "does not promote models automatically" in text
 
 
 def test_cli_promote_model_dry_run_does_not_modify_registry() -> None:

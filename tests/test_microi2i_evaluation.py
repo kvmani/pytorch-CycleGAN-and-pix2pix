@@ -21,6 +21,8 @@ def test_evaluate_paired_directories_computes_basic_metrics(tmp_path) -> None:
     assert report["samples"][0]["mae"] == 2.0
     assert "histogram_l1" in report["samples"][0]
     assert "edge_mae_mean" in report["aggregate"]
+    assert report["metric_families"]["fidelity"]["metric_count"] == 4
+    assert "ebsd_kikuchi" in report["metric_families"]
 
 
 def test_evaluate_identical_gradient_image_has_perfect_fidelity_metrics(tmp_path) -> None:
@@ -40,7 +42,30 @@ def test_evaluate_identical_gradient_image_has_perfect_fidelity_metrics(tmp_path
     assert sample["rmse"] == 0.0
     assert sample["histogram_l1"] == 0.0
     assert sample["gradient_correlation"] == 1.0
+    assert sample["ebsd_band_contrast_delta"] == 0.0
+    assert sample["ebsd_band_sharpness_ratio"] == 1.0
+    assert sample["orientation_coherence_delta"] == 0.0
     assert report["aggregate"]["psnr_mean"] == float("inf")
+
+
+def test_ebsd_proxy_metrics_detect_blurred_band_structure(tmp_path) -> None:
+    pred_dir = tmp_path / "pred"
+    target_dir = tmp_path / "target"
+    pred_dir.mkdir()
+    target_dir.mkdir()
+    target = np.zeros((16, 16), dtype=np.uint8)
+    target[:, 7:9] = 255
+    pred = np.zeros((16, 16), dtype=np.uint8)
+    pred[:, 6:10] = 128
+    Image.fromarray(np.stack([pred, pred, pred], axis=2)).save(pred_dir / "band.png")
+    Image.fromarray(np.stack([target, target, target], axis=2)).save(target_dir / "band.png")
+
+    report = evaluate_paired_directories(pred_dir, target_dir)
+    sample = report["samples"][0]
+
+    assert sample["ebsd_band_contrast_delta"] > 0.0
+    assert sample["ebsd_band_sharpness_ratio"] < 1.0
+    assert "ebsd_band_contrast_delta_mean" in report["aggregate"]
 
 
 def test_evaluation_review_artifacts_include_best_and_worst_samples(tmp_path) -> None:

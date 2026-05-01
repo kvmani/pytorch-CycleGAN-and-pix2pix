@@ -6,6 +6,9 @@ metrics:
   - psnr
   - ssim
   - edge_preservation
+  - ebsd_band_contrast
+  - ebsd_band_sharpness
+  - orientation_coherence
 inputs:
   predictions_dir: ./artifacts/predictions
   targets_dir: ./artifacts/targets

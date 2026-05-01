@@ -60,6 +60,10 @@ Every evaluation run should emit:
 - Best/worst sample review panels when paired predictions and targets are available
 - Manifest references for dataset, model, and artifacts
 
+## Metric Families
+
+Evaluation reports now group aggregate metrics into `fidelity`, `structure`, `microscopy`, and `ebsd_kikuchi` families. The grouping is meant for review dashboards and report navigation; it is not an automatic model-ranking rule.
+
 ## Current Implemented Metrics
 
 `microi2i evaluate` currently computes the following per same-named prediction/target pair:
@@ -71,6 +75,9 @@ Every evaluation run should emit:
 - `cnr_proxy_delta`
 - `high_frequency_energy_ratio`
 - `laplacian_sharpness_ratio`
+- `ebsd_band_contrast_delta`
+- `ebsd_band_sharpness_ratio`
+- `orientation_coherence_delta`
 
 These are screening metrics, not a replacement for microscopy expertise. For EBSD/Kikuchi images,
 band preservation and downstream indexing quality remain the stronger validation targets when tooling
