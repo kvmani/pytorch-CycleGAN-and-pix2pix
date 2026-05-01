@@ -38,8 +38,8 @@ As of this branch, the project is roughly 60% through the planned restructure: t
 - Add presets for pix2pix microscopy, CycleGAN microscopy, EBSD/Kikuchi denoising, super-resolution, and noise cancellation.
 
 Current status: smoke dataset generation, smoke-aware command construction, structured legacy loss
-parsing, and validation sample packaging are implemented. Remaining work is live loss streaming,
-loss-curve plots, and fully executable CPU smoke training in CI.
+parsing, validation sample packaging, and epoch-level validation monitoring are implemented. Remaining
+work is live loss streaming and fully executable CPU smoke training in CI.
 
 ## Phase 4: Inference And Batch Review
 

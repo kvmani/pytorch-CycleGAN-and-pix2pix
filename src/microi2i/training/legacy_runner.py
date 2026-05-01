@@ -225,6 +225,13 @@ def write_training_summary_html(run_dir: Path, report: dict[str, Any]) -> Path:
     curve_link = ""
     if (run_dir / "loss_curves.svg").exists():
         curve_link = "<h2>Loss Curves</h2><img src='loss_curves.svg' alt='Training loss curves'>"
+    monitor_link = ""
+    if (run_dir / "validation_monitor" / "index.html").exists():
+        monitor_link = "<h2>Validation Monitor</h2><p><a href='validation_monitor/index.html'>Open epoch validation dashboard</a></p>"
+    elif (run_dir / "validation_monitor" / "report.json").exists():
+        monitor_link = "<h2>Validation Monitor</h2><p><a href='validation_monitor/report.json'>Open epoch validation report</a></p>"
+    elif (run_dir / "validation_monitor_manifest.json").exists():
+        monitor_link = "<h2>Validation Monitor</h2><p><a href='validation_monitor_manifest.json'>Open validation monitor manifest</a></p>"
     path = run_dir / "training_summary.html"
     path.write_text(
         "<!doctype html><html><head><meta charset='utf-8'>"
@@ -235,6 +242,7 @@ def write_training_summary_html(run_dir: Path, report: dict[str, Any]) -> Path:
         "<body><h1>microi2i training summary</h1>"
         f"<p>Status: <strong>{report.get('status', 'unknown')}</strong></p>"
         f"{curve_link}"
+        f"{monitor_link}"
         f"<pre>{body}</pre></body></html>",
         encoding="utf-8",
     )

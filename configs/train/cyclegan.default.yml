@@ -15,6 +15,20 @@ training:
     enabled: false
     max_epochs: 1
     max_dataset_size: 4
+  validation_monitor:
+    enabled: true
+    fixed_images: []
+    fixed_count: 5
+    total_count: 5
+    seed: 42
+    eval_frequency_epochs: 1
+    metrics:
+      - mae
+      - rmse
+      - psnr
+      - ssim
+      - ebsd_band_contrast_delta
+    export_html: true
   legacy_args:
     - --dataroot
     - ./datasets/maps

@@ -14,6 +14,25 @@ Image translation outputs must be evaluated as scientific artifacts, not only as
 - High-frequency energy and Laplacian sharpness proxies for denoising and super-resolution screening.
 - Per-sample outlier ranking for expert review.
 
+
+## Longitudinal Training Validation
+
+```{image} diagrams/training_validation_monitor.svg
+:alt: Epoch-level validation monitor workflow
+:class: architecture-diagram
+```
+
+
+Training-time validation monitoring uses the same fixed samples across epochs so reviewers can
+inspect whether a model is improving, stagnating, or hallucinating features. A small fixed panel is
+scientifically useful because visual changes are attributable to the model state rather than sample
+selection. When more than five samples are requested, MicroI2I keeps the first five fixed and uses
+deterministic epoch-level random sampling for the remaining slots to improve coverage.
+
+For paired pix2pix datasets, monitor reports compute paired metrics for generated and target images.
+For unpaired CycleGAN datasets, reports emphasize visual progression unless explicit references are
+available; arbitrary unpaired target-domain images are not treated as ground truth.
+
 ## pix2pix Validation
 
 Use paired validation/test splits when ground truth exists.

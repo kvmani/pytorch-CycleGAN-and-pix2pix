@@ -45,7 +45,50 @@ artifact_manifest.json
 ```
 
 `training_report.json` contains the resolved legacy command, parsed options, dataset path checks,
-dataset manifest warnings, runtime metadata, and launch-blocking errors.
+dataset manifest warnings, runtime metadata, launch-blocking errors, and validation-monitor policy.
+
+## Training Validation Monitor
+
+Training configs include `training.validation_monitor` by default. The monitor keeps a fixed set of
+validation images across epochs so model progress can be inspected on the same samples over time.
+`fixed_images` may contain absolute paths, validation-pool filenames, or sample IDs. If `fixed_images` is empty, MicroI2I selects the first five images from the validation pool and keeps
+them fixed for the full run.
+
+```yaml
+training:
+  validation_monitor:
+    enabled: true
+    fixed_images: []
+    fixed_count: 5
+    total_count: 8
+    seed: 42
+    eval_frequency_epochs: 1
+    metrics: [mae, rmse, psnr, ssim, ebsd_band_contrast_delta]
+    export_html: true
+```
+
+When `total_count` is larger than `fixed_count`, the fixed samples remain unchanged and the extra
+slots are sampled deterministically from the remaining validation pool for each epoch.
+
+Validation pool discovery follows the legacy dataset layout:
+
+- pix2pix/aligned: `dataroot/val`, then `dataroot/test`
+- CycleGAN/unaligned: `dataroot/valA` and `dataroot/valB`, then `dataroot/testA` and `dataroot/testB`
+
+Training run outputs include:
+
+```text
+validation_monitor_manifest.json
+validation_monitor/report.json
+validation_monitor/index.html
+validation_monitor/epoch_XXX/index.html
+validation_monitor/epoch_XXX/fake_B/*.png
+validation_monitor/epoch_XXX/real_B/*.png
+```
+
+For paired pix2pix validation, metrics are computed between generated `fake_B` images and `real_B`
+targets. For unpaired CycleGAN validation, paired metrics are skipped unless explicit references are
+added later; the dashboard still provides visual progression panels.
 
 ## Train CycleGAN
 
@@ -112,6 +155,7 @@ loss_curves.svg
 training_outputs.json
 validation_samples.html
 validation_samples/
+validation_monitor/index.html
 ```
 
 ## Folder Inference

@@ -94,6 +94,7 @@ Required fields:
 - `schema_version`
 - `status`
 - `preflight`
+- `validation_monitor`
 
 The preflight section records parsed legacy options, model family, dataset mode, experiment name,
 script and dataset path checks, runtime settings, warnings, and errors. Training packages must also
@@ -118,6 +119,30 @@ When legacy training writes `loss_log.txt`, MicroI2I parses it into `metrics_log
 `metrics_log.jsonl`. When generated sample images exist under the legacy `web/images` directory,
 MicroI2I copies a bounded panel into `validation_samples/` and writes `validation_samples.html`.
 Parsed loss logs also produce `loss_curves.csv` and `loss_curves.svg`.
+
+
+## Validation Monitor Manifest
+
+File: `validation_monitor_manifest.json`
+
+Required fields:
+
+- `schema_version`: `microi2i.validation_monitor_manifest.v1`
+- `enabled`
+- `policy`
+- `pool`
+- `fixed_samples`
+- `epoch_selection_preview`
+- `epoch_selections`
+- `warnings`
+
+The manifest records how fixed validation samples were chosen, which validation roots were inspected,
+and which samples were selected at each epoch. The first fixed samples remain stable across the full
+training run. If `total_count` exceeds the fixed count, random samples are selected deterministically
+from `seed + epoch`.
+
+Validation monitor reports live under `validation_monitor/` and use `microi2i.validation_monitor_report.v1`
+and `microi2i.validation_monitor_epoch.v1` schemas.
 
 ## Model Backend Metadata
 

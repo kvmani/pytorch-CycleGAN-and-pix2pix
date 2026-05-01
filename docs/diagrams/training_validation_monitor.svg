@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700" role="img" aria-labelledby="title desc">
+  <title id="title">Epoch-level validation monitor</title>
+  <desc id="desc">PyTex-style diagram showing fixed validation samples, random validation samples, epoch inference, metrics, and HTML reports.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#fbfdff"/><stop offset="1" stop-color="#eef6ff"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#07122f" flood-opacity="0.14"/></filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M2,2 L10,6 L2,10 Z" fill="#07122f"/></marker>
+    <style>text{font-family:Arial, Helvetica, sans-serif}.title{font-size:42px;font-weight:700;fill:#07122f}.subtitle{font-size:20px;fill:#40506f}.label{font-size:18px;font-weight:700;fill:#07122f}.body{font-size:14px;fill:#40506f}.card{rx:8;filter:url(#shadow);stroke-width:2}.arrow{fill:none;stroke:#07122f;stroke-width:2.4;marker-end:url(#arrow)}.dash{fill:none;stroke:#7c3aed;stroke-width:2.2;stroke-dasharray:7 6;marker-end:url(#arrow)}</style>
+  </defs>
+  <rect width="1200" height="700" fill="url(#bg)"/>
+  <text x="600" y="60" text-anchor="middle" class="title">Training Validation Monitor</text>
+  <text x="600" y="94" text-anchor="middle" class="subtitle">Same fixed samples across epochs, optional random coverage, metrics, and publication-ready review HTML</text>
+  <rect x="510" y="116" width="180" height="5" rx="3" fill="#2563eb"/><rect x="600" y="116" width="90" height="5" rx="3" fill="#7c3aed"/>
+
+  <rect x="70" y="165" width="230" height="122" class="card" fill="#ffffff" stroke="#2563eb"/>
+  <text x="95" y="202" class="label">Validation Pool</text><text x="95" y="228" class="body">pix2pix: val/test</text><text x="95" y="252" class="body">CycleGAN: valA/valB</text>
+  <rect x="380" y="140" width="210" height="105" class="card" fill="#ecfdf5" stroke="#16a34a"/>
+  <text x="407" y="176" class="label">Fixed Samples</text><text x="407" y="202" class="body">first 5 by default</text><text x="407" y="226" class="body">same every epoch</text>
+  <rect x="380" y="285" width="210" height="105" class="card" fill="#fffbeb" stroke="#f59e0b"/>
+  <text x="407" y="321" class="label">Random Slots</text><text x="407" y="347" class="body">if total_count &gt; 5</text><text x="407" y="371" class="body">seed + epoch</text>
+  <rect x="675" y="205" width="220" height="125" class="card" fill="#f5f3ff" stroke="#7c3aed"/>
+  <text x="703" y="244" class="label">Epoch Hook</text><text x="703" y="270" class="body">model.test() no gradients</text><text x="703" y="294" class="body">export fake_B / real_B</text>
+  <rect x="970" y="140" width="180" height="105" class="card" fill="#eff6ff" stroke="#2563eb"/>
+  <text x="995" y="176" class="label">Metrics</text><text x="995" y="202" class="body">MAE, PSNR, SSIM</text><text x="995" y="226" class="body">EBSD proxies</text>
+  <rect x="970" y="305" width="180" height="105" class="card" fill="#fff1f2" stroke="#e11d48"/>
+  <text x="995" y="341" class="label">HTML Review</text><text x="995" y="367" class="body">epoch grids</text><text x="995" y="391" class="body">progress dashboard</text>
+
+  <path class="arrow" d="M300 226 H380"/><path class="arrow" d="M300 250 C345 250 345 337 380 337"/>
+  <path class="arrow" d="M590 192 C640 192 640 248 675 248"/><path class="dash" d="M590 337 C640 337 640 292 675 292"/>
+  <path class="arrow" d="M895 250 C935 250 935 192 970 192"/><path class="arrow" d="M895 290 C935 290 935 357 970 357"/>
+
+  <rect x="160" y="500" width="880" height="92" class="card" fill="#07122f" stroke="#07122f"/>
+  <text x="205" y="537" class="label" fill="#ffffff">Scientific Value</text><text x="205" y="563" class="body" fill="#dbeafe">Fixed panels reveal true model progression; random slots broaden coverage without losing longitudinal comparability.</text>
+</svg>

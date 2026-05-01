@@ -30,6 +30,7 @@ Unit tests cover pure functions and contracts:
 - manifest/report schema payloads
 - model registry validation
 - command construction
+- validation-monitor sample selection and dry-run manifests
 
 Unit tests must not require GPU, network, large files, or external services.
 
@@ -40,6 +41,7 @@ Integration tests cover behavior across modules:
 - CLI dry-runs
 - dataset preparation using tiny synthetic datasets
 - report and manifest generation
+- training validation monitor HTML/report generation
 - inference packaging from small folders
 - registry validation through the CLI
 
@@ -61,6 +63,7 @@ Examples:
 - identical images produce zero MAE/RMSE and infinite or maximal PSNR behavior
 - constant offset images produce predictable MAE/RMSE
 - leakage grouping keeps related samples in one split
+- fixed validation monitor samples remain stable while random slots are deterministic by epoch
 
 ## Required Local Gates
 

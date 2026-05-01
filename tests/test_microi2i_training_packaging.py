@@ -13,6 +13,14 @@ from microi2i.training.legacy_runner import (
     parse_legacy_args,
     write_loss_curve_artifacts,
 )
+from microi2i.training.validation_monitor import (
+    MONITOR_ENV_VAR,
+    build_validation_monitor_manifest,
+    discover_validation_pool,
+    run_epoch_validation_monitor,
+    select_epoch_samples,
+    write_validation_monitor_manifest,
+)
 
 
 def test_parse_legacy_args_extracts_training_metadata() -> None:
@@ -67,6 +75,9 @@ def test_cli_train_dry_run_writes_training_package(tmp_path) -> None:
     assert (run_dir / "metrics_log.csv").exists()
     assert (run_dir / "metrics_log.jsonl").exists()
     assert (run_dir / "training_summary.html").exists()
+    assert (run_dir / "validation_monitor_manifest.json").exists()
+    manifest = json.loads((run_dir / "validation_monitor_manifest.json").read_text(encoding="utf-8"))
+    assert manifest["schema_version"] == "microi2i.validation_monitor_manifest.v1"
 
 
 def test_smoke_training_overrides_force_cpu_and_tiny_dataset() -> None:
@@ -130,3 +141,151 @@ def test_loss_curve_artifacts_are_stable(tmp_path) -> None:
     assert [path.name for path in paths] == ["loss_curves.csv", "loss_curves.svg"]
     assert "loss_D" in (tmp_path / "loss_curves.csv").read_text(encoding="utf-8")
     assert "Training Loss Curves" in (tmp_path / "loss_curves.svg").read_text(encoding="utf-8")
+
+
+def test_validation_monitor_selects_explicit_fixed_images(tmp_path) -> None:
+    val_dir = tmp_path / "data" / "val"
+    val_dir.mkdir(parents=True)
+    from PIL import Image
+
+    for name in ("a.png", "b.png", "c.png"):
+        Image.new("RGB", (8, 8), (10, 10, 10)).save(val_dir / name)
+
+    pool = discover_validation_pool(
+        repo_root=tmp_path,
+        legacy_options={"dataroot": "data", "dataset_mode": "aligned"},
+        monitor_config={"fixed_images": ["b"]},
+    )
+
+    assert [row["sample_id"] for row in pool["fixed_samples"]] == ["b"]
+
+
+def test_validation_monitor_uses_first_five_as_default_fixed_set(tmp_path) -> None:
+    val_dir = tmp_path / "data" / "val"
+    val_dir.mkdir(parents=True)
+    from PIL import Image
+
+    for index in range(7):
+        Image.new("RGB", (8, 8), (index, index, index)).save(val_dir / f"{index:02d}.png")
+
+    manifest = build_validation_monitor_manifest(
+        repo_root=tmp_path,
+        run_dir=tmp_path / "run",
+        resolved_config={
+            "runtime": {"seed": 123},
+            "training": {
+                "validation_monitor": {},
+                "legacy_args": ["--dataroot", "data", "--dataset_mode", "aligned", "--name", "demo"],
+            },
+        },
+        command=["python", "train.py", "--dataroot", "data", "--dataset_mode", "aligned", "--name", "demo"],
+        dry_run=True,
+    )
+
+    assert [row["sample_id"] for row in manifest["fixed_samples"]] == ["00", "01", "02", "03", "04"]
+
+
+def test_validation_monitor_keeps_fixed_samples_and_adds_deterministic_random() -> None:
+    samples = [{"sample_id": str(index), "index": index, "input_path": f"{index}.png"} for index in range(8)]
+    fixed = samples[:5]
+
+    first = select_epoch_samples(samples, fixed, total_count=7, seed=42, epoch=3)
+    second = select_epoch_samples(samples, fixed, total_count=7, seed=42, epoch=3)
+    other_epoch = select_epoch_samples(samples, fixed, total_count=7, seed=42, epoch=4)
+
+    assert [row["sample_id"] for row in first[:5]] == ["0", "1", "2", "3", "4"]
+    assert first == second
+    assert first != other_epoch
+    assert all(row["selection_role"] == "fixed" for row in first[:5])
+    assert all(row["selection_role"] == "random" for row in first[5:])
+
+
+def test_validation_monitor_missing_pool_warns_without_blocking(tmp_path) -> None:
+    manifest = build_validation_monitor_manifest(
+        repo_root=tmp_path,
+        run_dir=tmp_path / "run",
+        resolved_config={
+            "training": {
+                "validation_monitor": {"enabled": True},
+                "legacy_args": ["--dataroot", "missing", "--dataset_mode", "unaligned"],
+            }
+        },
+        command=["python", "train.py", "--dataroot", "missing", "--dataset_mode", "unaligned"],
+        dry_run=True,
+    )
+
+    assert manifest["enabled"] is True
+    assert manifest["pool"]["sample_count"] == 0
+    assert manifest["warnings"]
+
+
+def test_validation_monitor_epoch_hook_writes_paired_metrics_and_html(tmp_path, monkeypatch) -> None:
+    from PIL import Image
+
+    val_dir = tmp_path / "data" / "val"
+    val_dir.mkdir(parents=True)
+    for index in range(2):
+        left = Image.new("RGB", (8, 8), (20 + index, 20, 20))
+        right = Image.new("RGB", (8, 8), (40 + index, 40, 40))
+        combined = Image.new("RGB", (16, 8))
+        combined.paste(left, (0, 0))
+        combined.paste(right, (8, 0))
+        combined.save(val_dir / f"sample_{index}.png")
+
+    class Opt:
+        dataroot = str(tmp_path / "data")
+        phase = "train"
+        dataset_mode = "aligned"
+        max_dataset_size = 10
+        load_size = 8
+        crop_size = 8
+        direction = "AtoB"
+        input_nc = 3
+        output_nc = 3
+        preprocess = "resize_and_crop"
+        no_flip = True
+        serial_batches = True
+        batch_size = 1
+        num_threads = 0
+        isTrain = True
+
+    class FakeModel:
+        model_names: list[str] = []
+
+        def eval(self) -> None:
+            self.was_eval = True
+
+        def set_input(self, data) -> None:
+            self.data = data
+
+        def test(self) -> None:
+            return None
+
+        def get_current_visuals(self):
+            return {"real_A": self.data["A"], "fake_B": self.data["B"], "real_B": self.data["B"]}
+
+    manifest = build_validation_monitor_manifest(
+        repo_root=tmp_path,
+        run_dir=tmp_path / "run",
+        resolved_config={
+            "training": {
+                "validation_monitor": {"fixed_count": 1, "total_count": 1, "export_html": True},
+                "legacy_args": ["--dataroot", str(tmp_path / "data"), "--dataset_mode", "aligned"],
+            }
+        },
+        command=["python", "train.py", "--dataroot", str(tmp_path / "data"), "--dataset_mode", "aligned"],
+        dry_run=False,
+    )
+    manifest_path = write_validation_monitor_manifest(tmp_path / "run", manifest)
+    monkeypatch.setenv(MONITOR_ENV_VAR, str(manifest_path))
+
+    run_epoch_validation_monitor(FakeModel(), Opt(), 1)
+
+    report = json.loads((tmp_path / "run" / "validation_monitor" / "report.json").read_text(encoding="utf-8"))
+    assert report["epochs"][0]["metrics"]["status"] == "computed"
+    assert report["epochs"][0]["metrics"]["aggregate"]["mae_mean"] == 0.0
+    assert (tmp_path / "run" / "validation_monitor" / "index.html").exists()
+    assert "Fixed Sample Progression" in (
+        tmp_path / "run" / "validation_monitor" / "index.html"
+    ).read_text(encoding="utf-8")
+    assert (tmp_path / "run" / "validation_monitor" / "epoch_001" / "index.html").exists()

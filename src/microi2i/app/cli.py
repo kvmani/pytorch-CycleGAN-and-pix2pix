@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import json
 import subprocess
 import sys
@@ -33,6 +34,11 @@ from microi2i.training.legacy_runner import (
     write_training_metric_placeholders,
     write_training_summary_html,
 )
+from microi2i.training.validation_monitor import (
+    MONITOR_ENV_VAR,
+    build_validation_monitor_manifest,
+    write_validation_monitor_manifest,
+)
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -45,8 +51,8 @@ def _repo_path(value: str | Path) -> Path:
     return ROOT / path
 
 
-def _run_subprocess(command: list[str], *, cwd: Path) -> int:
-    process = subprocess.run(command, cwd=str(cwd), check=False)
+def _run_subprocess(command: list[str], *, cwd: Path, env: dict[str, str] | None = None) -> int:
+    process = subprocess.run(command, cwd=str(cwd), check=False, env=env)
     return int(process.returncode)
 
 
@@ -107,7 +113,27 @@ def _run_wrapped_workflow(args: argparse.Namespace, workflow: str) -> int:
                 "model_backend": backend_metadata,
                 "preflight": preflight,
             }
+            monitor_manifest = build_validation_monitor_manifest(
+                repo_root=ROOT,
+                run_dir=run.run_dir,
+                resolved_config=cfg,
+                command=command,
+                dry_run=dry_run,
+            )
+            monitor_manifest_path = write_validation_monitor_manifest(run.run_dir, monitor_manifest)
+            report["validation_monitor"] = {
+                "enabled": monitor_manifest["enabled"],
+                "manifest": monitor_manifest_path.name,
+                "fixed_sample_count": len(monitor_manifest.get("fixed_samples", [])),
+                "warnings": monitor_manifest.get("warnings", []),
+            }
             run.add_artifact("training_report.json", "training_report", "Training preflight and run report", report)
+            _record_existing_artifact(
+                run,
+                monitor_manifest_path,
+                "validation_monitor_manifest",
+                "Training validation monitor plan and epoch selections",
+            )
             for path in write_training_metric_placeholders(run.run_dir):
                 _record_existing_artifact(
                     run,
@@ -134,11 +160,20 @@ def _run_wrapped_workflow(args: argparse.Namespace, workflow: str) -> int:
         if dry_run:
             run.add_artifact("dry_run.json", "dry_run", "Dry-run marker", {"skipped_command": command})
         else:
-            exit_code = _run_subprocess(command, cwd=ROOT)
+            env = None
+            if workflow == "training":
+                env = dict(os.environ)
+                env[MONITOR_ENV_VAR] = str(run.run_dir / "validation_monitor_manifest.json")
+                src_path = str(ROOT / "src")
+                env["PYTHONPATH"] = src_path + os.pathsep + env.get("PYTHONPATH", "")
+            exit_code = _run_subprocess(command, cwd=ROOT, env=env)
             if exit_code != 0:
                 status = "failed"
         if workflow == "training":
             outputs = package_training_outputs(run.run_dir, preflight)
+            report["training_outputs"] = outputs
+            html_path = write_training_summary_html(run.run_dir, report)
+            _record_existing_artifact(run, html_path, "html_report", "Human-readable training summary")
             run.add_artifact("training_outputs.json", "training_outputs", "Packaged training logs and panels", outputs)
             for name, kind, description in (
                 ("loss_curves.csv", "loss_curves", "Tabular training loss curve data"),
@@ -150,6 +185,13 @@ def _run_wrapped_workflow(args: argparse.Namespace, workflow: str) -> int:
             panel_path = run.run_dir / "validation_samples.html"
             if panel_path.exists():
                 _record_existing_artifact(run, panel_path, "html_review", "Training validation sample panel")
+            for name, kind, description in (
+                ("validation_monitor/report.json", "validation_monitor_report", "Epoch validation monitor report"),
+                ("validation_monitor/index.html", "html_review", "Epoch validation monitor dashboard"),
+            ):
+                monitor_path = run.run_dir / name
+                if monitor_path.exists():
+                    _record_existing_artifact(run, monitor_path, kind, description)
         if workflow == "inference":
             inference_cfg = cfg.get("inference", {})
             if not isinstance(inference_cfg, dict):

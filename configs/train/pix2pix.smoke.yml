@@ -19,6 +19,20 @@ training:
     image_size: 32
     disable_html: true
     checkpoints_dir: artifacts/smoke_checkpoints
+  validation_monitor:
+    enabled: true
+    fixed_images: []
+    fixed_count: 5
+    total_count: 5
+    seed: 42
+    eval_frequency_epochs: 1
+    metrics:
+      - mae
+      - rmse
+      - psnr
+      - ssim
+      - ebsd_band_contrast_delta
+    export_html: true
   legacy_args:
     - --dataroot
     - artifacts/smoke_datasets/pix2pix

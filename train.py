@@ -24,6 +24,11 @@ from data import create_dataset
 from models import create_model
 from util.visualizer import Visualizer
 
+try:
+    from microi2i.training.validation_monitor import run_epoch_validation_monitor
+except Exception:
+    run_epoch_validation_monitor = None
+
 if __name__ == '__main__':
     opt = TrainOptions().parse()   # get training options
     dataset = create_dataset(opt)  # create a dataset given opt.dataset_mode and other options
@@ -73,6 +78,8 @@ if __name__ == '__main__':
             print('saving the model at the end of epoch %d, iters %d' % (epoch, total_iters))
             model.save_networks('latest')
             model.save_networks(epoch)
+        if run_epoch_validation_monitor is not None:
+            run_epoch_validation_monitor(model, opt, epoch)
 
         print('End of epoch %d / %d \t Time Taken: %d sec' % (epoch, opt.n_epochs + opt.n_epochs_decay, time.time() - epoch_start_time))
 
